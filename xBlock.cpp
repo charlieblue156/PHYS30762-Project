@@ -27,3 +27,17 @@ void xBlock::activate_x_block(xBlock &x_block, Circuit circuit)
 }
 
 
+void xBlock::print_data()
+{
+    std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
+    if(this->get_z_phase()<0)
+    {
+        std::cout<<"Complex impedance: "<<this->get_z_real()<<" "<<this->get_z_imaginary()<<"i [\u03A9]."<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Complex impedance: "<<this->get_z_real()<<" +"<<this->get_z_imaginary()<<"i [\u03A9]."<<std::endl;
+    }
+    std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [\u03A9]."<<std::endl;
+    std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
+}

@@ -20,19 +20,18 @@ friend void activate_circuit(Circuit &circuit);
 private:
   std::vector<std::shared_ptr<xBlock>> circuit_elements{};
   double omega;
-  void set_z_complex(std::complex<double> z_complex_input) {z_complex=z_complex_input;}
+  void set_z_complex();
 
 public:
   Circuit()=default;
-  Circuit(double omega_prmtr, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr) : omega{omega_prmtr}, circuit_elements(std::move(circuit_elements_prmtr)){}
+  Circuit(double omega_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr) : omega{omega_prmtr}, circuit_elements(circuit_elements_prmtr){}
   Circuit(const Circuit&original);
   Circuit(Circuit &&temp): omega(std::move(temp.omega)), circuit_elements(std::move(temp.circuit_elements)){}
   ~Circuit(){}
 
+  Circuit &operator=(const Circuit &other);
+  Circuit &operator=(Circuit &&temp);
 
-  //move and assignment operators
-
-  //void activate_circuit();
   
   void set_omega(double omega_input) {omega=omega_input;}
   double get_omega() const {return omega;}

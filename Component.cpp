@@ -8,9 +8,11 @@
 #include<memory>
 #include<complex>
 
+
+
+
+
 //the initialise method is probably not optimal, try templates
-
-
 
 void Component::intialise(const std::string name_prmtr, const double value_prmtr)
 {
@@ -50,6 +52,14 @@ Resistor::Resistor(Resistor &&temp)
     //double check this works
     intialise(std::move(temp.name), std::move(temp.value));
 }
+void Resistor::print_data()
+{
+    xBlock::print_data();
+    std::cout<<"Resistance: "<<this->get_value()<<" [\u03A9]."<<std::endl;
+    
+}
+
+
 
 Capacitor::Capacitor(const std::string name_prmtr, const double value_prmtr)
 {
@@ -65,6 +75,12 @@ Capacitor::Capacitor(Capacitor &&temp)
     intialise(std::move(temp.name), std::move(temp.value));
 }
 
+void Capacitor::print_data()
+{
+    xBlock::print_data();
+    std::cout<<"Capacitor: "<<this->get_value()<<" [F]."<<std::endl;
+
+}
 
 Inductor::Inductor(const std::string name_prmtr, const double value_prmtr)
 {
@@ -80,6 +96,14 @@ Inductor::Inductor(Inductor &&temp)
     intialise(std::move(temp.name), std::move(temp.value));
 }
 
+void Inductor::print_data()
+{
+    xBlock::print_data();
+    std::cout<<"Inductor: "<<this->get_value()<<" [H]."<<std::endl;
+
+}
+
+
 void Resistor::set_z_complex(double value_input, double omega_input)
 {
     z_complex=std::complex<double>(value_input, 0);
@@ -87,7 +111,7 @@ void Resistor::set_z_complex(double value_input, double omega_input)
 
 void Capacitor::set_z_complex(double value_input, double omega_input)
 {
-    z_complex=std::complex<double>(0, 1/(omega_input*value_input));
+    z_complex=std::complex<double>(0, -1/(omega_input*value_input));
 }
 
 void Inductor::set_z_complex(double value_input, double omega_input)
@@ -98,4 +122,5 @@ void Inductor::set_z_complex(double value_input, double omega_input)
 void activate_component(Component &component, Circuit circuit)
 {
     component.set_z_complex(component.get_value(), circuit.get_omega());
+    //component.print_data();
 }

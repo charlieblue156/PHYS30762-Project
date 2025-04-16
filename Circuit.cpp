@@ -9,6 +9,17 @@
 #include "Circuit.h"
 
 
+void Circuit::set_z_complex()
+{
+    for(const auto& circuit_elements_ptr : circuit_elements) 
+    {
+        if(circuit_elements_ptr)
+        { 
+            z_complex+=circuit_elements_ptr->get_z_complex();
+        }
+    }
+}
+
 
 Circuit::Circuit(const Circuit&original) : omega{original.omega}
 {
@@ -29,6 +40,30 @@ iterate again through the y_block, or circuit vectors, activating the impedance 
 
 The activation of y_block and circuit iterators should be in their classes to access y_elements and circuit_elements respectively.*/
 
+Circuit &Circuit::operator=(const Circuit &other)
+{
+    if(this!=&other)
+    {
+        circuit_elements.clear();
+        for(const auto &circuit_ptr : other.circuit_elements) 
+        {
+            if(circuit_ptr)
+            { 
+                circuit_elements.push_back(circuit_ptr);
+            }
+        }
+    }
+    return *this;
+}
+
+Circuit &Circuit::operator=(Circuit &&temp)
+{
+    if(this!=&temp)
+    {
+        circuit_elements=std::move(temp.circuit_elements);
+    }
+    return *this;
+}
 
 void activate_circuit(Circuit &circuit)
 {
@@ -36,15 +71,8 @@ void activate_circuit(Circuit &circuit)
     {
         circuit.activate_x_block(*circuit_element_ptr, circuit);
     }
+    circuit.set_z_complex();
 }
 
-/*
-void Circuit::activate_circuit()
-{
-    for(const auto &circuit_element_ptr: this->circuit_elements)
-    {
-        activate_x_block(*circuit_element_ptr);
-    }
-}
-*/
+
 

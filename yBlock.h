@@ -18,9 +18,10 @@ class yBlock : public xBlock
 friend void activate_y_block(yBlock &y_block, Circuit circuit);
 private:
   std::vector<std::shared_ptr<xBlock>> y_elements;
+  void set_z_complex();
 public:
   yBlock()=default;
-  yBlock(std::vector<std::shared_ptr<xBlock>> y_elements_prmtr) : y_elements(std::move(y_elements_prmtr)){}
+  yBlock(std::vector<std::shared_ptr<xBlock>> y_elements_prmtr) : y_elements(y_elements_prmtr){}
   yBlock(const yBlock &original);
   yBlock(yBlock &&temp) : xBlock(std::move(temp)), y_elements(std::move(temp.y_elements)){}
   ~yBlock(){}
@@ -33,7 +34,7 @@ public:
   std::vector<std::shared_ptr<xBlock>> get_y_elements() const {return y_elements;}
 
 
-  void set_z_complex();
+
 
 };
 

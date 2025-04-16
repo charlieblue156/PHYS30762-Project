@@ -77,4 +77,5 @@ void activate_y_block(yBlock &y_block, Circuit circuit)
     {
         y_block.activate_x_block(*y_element_ptr, circuit);
     }
+    y_block.set_z_complex();
 }

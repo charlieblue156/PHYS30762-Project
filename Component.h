@@ -18,7 +18,6 @@ class Component : public xBlock
 {
 friend void activate_component(Component &component, Circuit circuit);
 protected:
-  std::string name{""};
   double value;
   virtual void set_z_complex(double value_input, double omega_input)=0;
 
@@ -32,6 +31,8 @@ public:
   void intialise(const std::string name_prmtr, const double value_prmtr);
   double get_value() const {return value;}
   void set_value(double value_input) {value=value_input;}
+
+
 };
 
 
@@ -46,7 +47,7 @@ public:
   Resistor(Resistor &&temp);
   ~Resistor(){}
 
-
+  void print_data() override;
 
 
 
@@ -63,6 +64,8 @@ public:
   Capacitor(Capacitor &&temp);
   ~Capacitor(){}
 
+  void print_data() override;
+
 };
 
 class Inductor:public Component
@@ -75,6 +78,8 @@ public:
   Inductor(const Inductor&original);
   Inductor(Inductor &&temp);
   ~Inductor(){}
+
+  void print_data() override;
 };
 
 
