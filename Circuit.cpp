@@ -2,6 +2,8 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<complex>
+#include<unordered_map>
 
 #include "Component.h"
 #include "xBlock.h"
@@ -11,7 +13,7 @@
 
 void Circuit::set_z_complex()
 {
-    for(const auto& circuit_elements_ptr : circuit_elements) 
+    for(const auto& [name,circuit_elements_ptr] : circuit_elements) 
     {
         if(circuit_elements_ptr)
         { 
@@ -21,36 +23,25 @@ void Circuit::set_z_complex()
 }
 
 
-Circuit::Circuit(const Circuit&original) : omega{original.omega}
+Circuit::Circuit(const Circuit&original) : xBlock{original}, omega{original.omega}
 {
-    for(const auto &circuit_element_ptr : original.circuit_elements) 
+    for(const auto &[name,circuit_element_ptr] : original.circuit_elements) 
     {
-        if(circuit_element_ptr)
-        { 
-            circuit_elements.push_back(circuit_element_ptr);
-        }
+        circuit_elements[name]=circuit_element_ptr;
     }
 }
 
-
-//activate each components impedance via frequency 
-/*the circuit_elements vector can contain components, y_blocks, or circuits. Given each occurence, 
-activate each x_block. ie iterate through circuit_elements, have an overloaded function that will 
-iterate again through the y_block, or circuit vectors, activating the impedance for each function.
-
-The activation of y_block and circuit iterators should be in their classes to access y_elements and circuit_elements respectively.*/
 
 Circuit &Circuit::operator=(const Circuit &other)
 {
     if(this!=&other)
     {
+        xBlock::operator=(other);
+        omega=other.omega;
         circuit_elements.clear();
-        for(const auto &circuit_ptr : other.circuit_elements) 
+        for(const auto &[name,circuit_ptr] : other.circuit_elements) 
         {
-            if(circuit_ptr)
-            { 
-                circuit_elements.push_back(circuit_ptr);
-            }
+            circuit_elements[name]=circuit_ptr;
         }
     }
     return *this;
@@ -60,19 +51,40 @@ Circuit &Circuit::operator=(Circuit &&temp)
 {
     if(this!=&temp)
     {
+        xBlock::operator=(std::move(temp));
+        omega=std::move(temp.omega);
         circuit_elements=std::move(temp.circuit_elements);
     }
     return *this;
 }
 
-void activate_circuit(Circuit &circuit)
+void Circuit::activate_circuit()
 {
-    for(const auto &circuit_element_ptr : circuit.circuit_elements) 
+    std::cout<<"Activating "<<this->get_name()<<"."<<std::endl;
+    for(const auto &[name,circuit_element_ptr]: this->circuit_elements) 
     {
-        circuit.activate_x_block(*circuit_element_ptr, circuit);
+        if(circuit_element_ptr)
+            {
+                this->activate_x_block(*circuit_element_ptr, omega);
+            }
     }
-    circuit.set_z_complex();
+    this->set_z_complex();
 }
 
 
-
+std::shared_ptr<xBlock> Circuit::find_element(const std::string &name)
+{
+    std::cout<<"Searching for "<<name<<" in "<<this->get_name()<<"."<<std::endl;
+    std::shared_ptr<xBlock> search_result{};
+    search_result=find_element_algorithm(name, this->get_circuit_elements());
+    if(search_result==nullptr) 
+    {
+        std::cout<<name<<" not found in "<<this->get_name()<<"."<<std::endl;
+    }
+    else
+    {
+        std::cout<<name<<" found in "<<this->get_name()<<"."<<std::endl;
+        search_result->print_data();
+    }
+    return search_result;
+}

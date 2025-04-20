@@ -5,6 +5,7 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<unordered_map>
 #include "Component.h"
 #include "xBlock.h"
 #include "yBlock.h"
@@ -16,17 +17,17 @@ class Component;
 
 class Circuit:public xBlock
 {
-friend void activate_circuit(Circuit &circuit);
+//friend void activate_circuit(Circuit &circuit);
 private:
-  std::vector<std::shared_ptr<xBlock>> circuit_elements{};
+  std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements{};
   double omega;
   void set_z_complex();
 
 public:
   Circuit()=default;
-  Circuit(double omega_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr) : omega{omega_prmtr}, circuit_elements(circuit_elements_prmtr){}
+  Circuit(const std::string name_prmtr, double omega_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr) : xBlock(name_prmtr), omega{omega_prmtr}, circuit_elements(circuit_elements_prmtr){}
   Circuit(const Circuit&original);
-  Circuit(Circuit &&temp): omega(std::move(temp.omega)), circuit_elements(std::move(temp.circuit_elements)){}
+  Circuit(Circuit &&temp): xBlock(std::move(temp)), omega(std::move(temp.omega)), circuit_elements(std::move(temp.circuit_elements)){}
   ~Circuit(){}
 
   Circuit &operator=(const Circuit &other);
@@ -36,6 +37,11 @@ public:
   void set_omega(double omega_input) {omega=omega_input;}
   double get_omega() const {return omega;}
 
+  std::unordered_map<std::string, std::shared_ptr<xBlock>> get_circuit_elements() const {return circuit_elements;}
+
+  void activate_circuit();
+
+  std::shared_ptr<xBlock> find_element(const std::string &name) override;
  
 };
 

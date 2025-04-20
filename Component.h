@@ -16,22 +16,29 @@ class Circuit;
 
 class Component : public xBlock
 {
-friend void activate_component(Component &component, Circuit circuit);
+friend void activate_component(Component &component, double omega);
 protected:
   double value;
   virtual void set_z_complex(double value_input, double omega_input)=0;
-
+  Component(const std::string name_prmtr, const double value_prmtr) : xBlock(name_prmtr), value(value_prmtr){}
 //template can be inserted if necessary and if time
 public:
   virtual ~Component(){}
+  Component(Component &&temp) : xBlock(std::move(temp)), value(std::move(temp.value)){}
+  Component(const Component &other) : xBlock(other), value(other.value){}
 
   Component &operator=(Component &&temp);
   Component &operator=(const Component &other);
 
-  void intialise(const std::string name_prmtr, const double value_prmtr);
   double get_value() const {return value;}
   void set_value(double value_input) {value=value_input;}
 
+  //throw the find function
+  std::shared_ptr<xBlock> find_element(const std::string &name) override
+  {
+    std::cout<<"find_element() function not implemented for Component class."<<std::endl;
+    return nullptr;
+  }
 
 };
 
@@ -42,10 +49,13 @@ private:
   void set_z_complex(double value_input, double omega_input) override;
 public:
   Resistor()=default;
-  Resistor(const std::string name_prmtr, const double value_prmtr);
+  Resistor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Resistor(const Resistor&original);
   Resistor(Resistor &&temp);
   ~Resistor(){}
+
+  Resistor &operator=(Resistor &&temp);
+  Resistor &operator=(const Resistor &other);
 
   void print_data() override;
 
@@ -59,10 +69,13 @@ private:
   void set_z_complex(double value_input, double omega_input) override;
 public:
   Capacitor()=default;
-  Capacitor(const std::string name_prmtr, const double value_prmtr);
+  Capacitor(const std::string name_prmtr, double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Capacitor(const Capacitor&original);
   Capacitor(Capacitor &&temp);
   ~Capacitor(){}
+
+  Capacitor &operator=(Capacitor &&temp);
+  Capacitor &operator=(const Capacitor &other);
 
   void print_data() override;
 
@@ -74,10 +87,13 @@ private:
   void set_z_complex(double value_input, double omega_input) override;
 public:
   Inductor()=default;
-  Inductor(const std::string name_prmtr, const double value_prmtr);
+  Inductor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Inductor(const Inductor&original);
   Inductor(Inductor &&temp);
   ~Inductor(){}
+
+  Inductor &operator=(Inductor &&temp);
+  Inductor &operator=(const Inductor &other);
 
   void print_data() override;
 };
