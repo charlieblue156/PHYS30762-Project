@@ -16,7 +16,7 @@ protected:
   std::complex<double> z_complex;
   std::string name{""};
   xBlock(const std::string name_prmtr) : name(name_prmtr){}
-
+  std::shared_ptr<xBlock> find_element_algorithm(const std::string &name, const std::unordered_map<std::string, std::shared_ptr<xBlock>> &map);
 public:
   virtual ~xBlock(){}
   xBlock(const xBlock &other);
@@ -39,12 +39,10 @@ public:
   void set_name(std::string name_input) {name=name_input;}
   
 
-  std::shared_ptr<xBlock> find_element_algorithm(const std::string &name, const std::unordered_map<std::string, std::shared_ptr<xBlock>> &map);
-  virtual std::shared_ptr<xBlock> find_element(const std::string &name)=0;
-
   void activate_x_block(xBlock &x_block, double omega);
 
-  virtual void print_data();
+  //Prints data for the xBlock object
+  virtual void print_xblock_data();
 };
 
 #endif

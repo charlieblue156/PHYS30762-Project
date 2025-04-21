@@ -14,6 +14,7 @@ class componentLibrary
 private:
   std::unordered_map<std::string, std::shared_ptr<Component>> component_library{};
   std::string name{""};
+  
 public:
 
   componentLibrary()=default;
@@ -27,6 +28,7 @@ public:
 
   std::shared_ptr<Component> get_component(std::string library_index);
   void component_library_entry(std::shared_ptr<Component> &&new_component);
+  void duplication_validation(std::shared_ptr<Component> &new_component);
 
   std::string get_name() const {return name;}
   void set_name(std::string name_input) {name=name_input;}

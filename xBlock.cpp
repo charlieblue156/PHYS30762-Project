@@ -3,6 +3,7 @@
 #include<vector>
 #include<memory>
 #include<complex>
+#include<cmath>
 #include<unordered_map>
 #include "Component.h"
 #include "xBlock.h"
@@ -27,19 +28,26 @@ void xBlock::activate_x_block(xBlock &x_block, double omega)
 }
 
 
-void xBlock::print_data()
+void xBlock::print_xblock_data()
 {
-    //std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
-    if(this->get_z_phase()<0)
+    std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
+    try
     {
-        std::cout<<"Complex impedance: "<<this->get_z_real()<<" "<<this->get_z_imaginary()<<"i Ω."<<std::endl;
+        if(std::isfinite(z_complex.real())&&std::isfinite(z_complex.imag()))
+        {
+            std::cout<<"Complex impedance: "<<this->get_z_real()<<(this->get_z_imaginary()<0?" ":" +")<<this->get_z_imaginary()<<"i [Ω]."<<std::endl;
+            std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [Ω]."<<std::endl;
+            std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
+        }
+        else
+        {
+            throw std::runtime_error("Invalid complex impedance for "+this->get_name()+". Please enter impedance values that are nonzero or infinite for real and imaginary parts.");
+        }
     }
-    else
+    catch(const std::runtime_error &e)
     {
-        std::cout<<"Complex impedance: "<<this->get_z_real()<<" +"<<this->get_z_imaginary()<<"i Ω."<<std::endl;
+        std::cerr<<e.what()<<std::endl;
     }
-    std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" Ω."<<std::endl;
-    std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
 }
 
 std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, const std::unordered_map<std::string, std::shared_ptr<xBlock>> &map)
@@ -56,7 +64,7 @@ std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, 
         {
             if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get()))
             {
-                search_result=y_block_ptr->find_element(name);
+                search_result=y_block_ptr->find_element_algorithm(name, y_block_ptr->get_y_elements());
                 if (search_result!=nullptr) 
                 {
                   return search_result;
@@ -64,7 +72,7 @@ std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, 
             }
             else if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
             {
-                search_result=circuit_ptr->find_element(name);
+                search_result=circuit_ptr->find_element_algorithm(name, circuit_ptr->get_circuit_elements());
                 if(search_result!=nullptr) 
                 {
                     return search_result;
@@ -105,3 +113,4 @@ xBlock &xBlock::operator=(xBlock &&temp)
     }
     return *this;
 }
+

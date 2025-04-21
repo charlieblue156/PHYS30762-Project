@@ -42,7 +42,25 @@ int main()
     circuit1.find_element("c1");
     circuit1.find_element("y1");
     circuit1.find_element("f2");
-    
+
+    //testing for empties
+    std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_2_elements;
+    Circuit circuit2{"circuit2", 50, std::move(circuit_2_elements)};
+    circuit2.activate_circuit();
+    circuit2.find_element("c1");
+    circuit2.find_element("y1");
+
+    std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_3;
+    std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_3_elements;
+    circuit_3_elements["y1"]=std::make_shared<yBlock>("y1", y_elements_3);
+    Circuit circuit3{"circuit3", 50, std::move(circuit_3_elements)};
+    circuit3.activate_circuit();
+    circuit3.find_element("c1");
+    circuit3.find_element("y1");
+
+    //Further encapsiulate, components/elements can only be added to containers via functions,
+    //These funtions check for bad alloc (catch)
+    //Have catch/throw for infinite 
 
     return 0;
 }
@@ -57,26 +75,18 @@ To do list:
 - Check for errors with this, possibly start the catching and throwing, check for name not in circuit
 -omega symbol
 
-- For component not in the circuit segmentation fault arises, check for this and throw an exception
-- The find_element_algorithm returns a nullptr for each element in the iterator, it needs to return a null ptr if the iteration is over and no elements are found
+- For component not in the circuit segmentation fault arises, check for this and throw an exception DONE
+- The find_element_algorithm returns a nullptr for each element in the iterator, it needs to return a null ptr if the iteration is over and no elements are found DONE
 
 
 - Ascii 
 
 
-
-- Parallel yBlock library
-
 - Catch, throw, exceptions
 inc: empty vectors, invalid values, invalid name, incorrect type etc
-- Change the name of the component to be unique, check if name already exists in the library
+- Change the name of the component to be unique, check if name already exists in the library DONE
 
 
 - Test move and copy constructors and assignment operators
-
-
-Possible extension
-- Overload addition operator to add components etc
-
 
 */

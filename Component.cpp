@@ -67,9 +67,9 @@ Resistor &Resistor::operator=(const Resistor &other)
 }
 
 
-void Resistor::print_data()
+void Resistor::print_xblock_data()
 {
-    xBlock::print_data();
+    xBlock::print_xblock_data();
     std::cout<<"Resistance: "<<this->get_value()<<" [Ω]."<<std::endl;
 }
 
@@ -104,9 +104,9 @@ Capacitor &Capacitor::operator=(const Capacitor &other)
     return *this;
 }
 
-void Capacitor::print_data()
+void Capacitor::print_xblock_data()
 {
-    xBlock::print_data();
+    xBlock::print_xblock_data();
     std::cout<<"Capacitor: "<<this->get_value()<<" [F]."<<std::endl;
 }
 
@@ -143,9 +143,9 @@ Inductor &Inductor::operator=(const Inductor &other)
 }
 
 
-void Inductor::print_data()
+void Inductor::print_xblock_data()
 {
-    xBlock::print_data();
+    xBlock::print_xblock_data();
     std::cout<<"Inductor: "<<this->get_value()<<" [H]."<<std::endl;
 
 }

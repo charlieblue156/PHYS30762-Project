@@ -7,7 +7,7 @@
 #include "Component.h"
 #include "componentLibrary.h"
 
-void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
+void componentLibrary::duplication_validation(std::shared_ptr<Component> &new_component)
 {
     for(const auto& [existing_name, existing_component] : component_library)
     {
@@ -35,9 +35,21 @@ void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_
             }
         }
     }
-    std::cout<<"Adding component "<<new_component->get_name()<<" to "<<name<<"."<<std::endl;
+    std::cout<<"Success."<<std::endl;
     component_library[new_component->get_name()]=new_component;
     return;
+}
+
+void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
+{
+    try
+    {
+        duplication_validation(new_component);
+    }
+    catch(const std::bad_alloc& memFail)
+    {
+        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
+    }
 }
 
 componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
@@ -74,6 +86,7 @@ componentLibrary &componentLibrary::operator=(componentLibrary &&temp)
 
 std::shared_ptr<Component> componentLibrary::get_component(std::string library_index)
 {
+    std::cout<<'\n'<<"Searching for "<<library_index<<" in "<<name<<"."<<std::endl;
     auto iterator=component_library.find(library_index);
     if (iterator!=component_library.end()) 
     {

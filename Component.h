@@ -21,7 +21,7 @@ protected:
   double value;
   virtual void set_z_complex(double value_input, double omega_input)=0;
   Component(const std::string name_prmtr, const double value_prmtr) : xBlock(name_prmtr), value(value_prmtr){}
-//template can be inserted if necessary and if time
+
 public:
   virtual ~Component(){}
   Component(Component &&temp) : xBlock(std::move(temp)), value(std::move(temp.value)){}
@@ -32,13 +32,6 @@ public:
 
   double get_value() const {return value;}
   void set_value(double value_input) {value=value_input;}
-
-  //throw the find function
-  std::shared_ptr<xBlock> find_element(const std::string &name) override
-  {
-    std::cout<<"find_element() function not implemented for Component class."<<std::endl;
-    return nullptr;
-  }
 
 };
 
@@ -57,7 +50,7 @@ public:
   Resistor &operator=(Resistor &&temp);
   Resistor &operator=(const Resistor &other);
 
-  void print_data() override;
+  void print_xblock_data() override;
 
 
 
@@ -77,7 +70,7 @@ public:
   Capacitor &operator=(Capacitor &&temp);
   Capacitor &operator=(const Capacitor &other);
 
-  void print_data() override;
+  void print_xblock_data() override;
 
 };
 
@@ -95,7 +88,7 @@ public:
   Inductor &operator=(Inductor &&temp);
   Inductor &operator=(const Inductor &other);
 
-  void print_data() override;
+  void print_xblock_data() override;
 };
 
 
