@@ -3,6 +3,7 @@
 #include<vector>
 #include<memory>
 #include<complex>
+#include<fstream>
 #include<unordered_map>
 
 #include "Component.h"
@@ -163,4 +164,48 @@ void yBlock::clear_y_elements()
     y_elements.clear();
     std::cout<<"yBlock elements cleared."<<std::endl;
     z_complex=0.;
+}
+
+
+void yBlock::html_art(std::ofstream &html)
+{
+    if(y_elements.size()>1)
+    {
+        html<<"<div class=\"hline selectableMap\"";
+        html<<" data-name=\"" << name <<"\"";
+        html<<" data-impedance_mag=\""<<this->get_z_magnitude()<<"[Ω]\"";
+        html<<" data-impedance_phase=\""<<this->get_z_phase()<<"[rad]\">";
+        html << "</div>";
+
+        html<<"<div class=\"parallel\">";
+        for(const auto &[name,y_element_ptr] : y_elements) 
+        {
+            if(y_element_ptr)
+            { 
+                html<<"<div class=\"branch\">";
+                html<<"<div class=\"vline\"></div>";
+                html<<"<div class=\"component\">";
+                y_element_ptr->html_art(html);
+                html<<"</div>";
+                html<<"<div class=\"vline\"></div>";
+                html<<"</div>";
+            }
+        }
+        html<<"</div>";
+        html<<"<div class=\"hline\">";
+        html<<"</div>";
+    }
+    else
+    {
+        for(const auto &[name,y_element_ptr] : y_elements) 
+        {
+            if(y_element_ptr)
+            { 
+                html<<"<div class=\"component\">";
+                y_element_ptr->html_art(html);
+                html<<"</div>";
+                //html<<"<div class=\"component\">|</div>";
+            }
+        }
+    }
 }

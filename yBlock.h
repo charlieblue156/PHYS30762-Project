@@ -7,6 +7,7 @@
 #include<vector>
 #include<complex>
 #include<memory>
+#include<fstream>
 #include<unordered_map>
 #include "Component.h"
 #include "xBlock.h"
@@ -30,8 +31,6 @@ public:
   yBlock &operator=(const yBlock &other);
   yBlock &operator=(yBlock &&temp);
 
-  //std::shared_ptr<xBlock> find_element(const std::string &name) override;
-
   std::unordered_map<std::string, std::shared_ptr<xBlock>> get_y_elements() const {return y_elements;}
 
   void print_yelements();
@@ -42,7 +41,8 @@ public:
   void add_y_elements(std::string name, std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_prmtr);
   void clear_y_elements();
 
-
+  
+  void html_art(std::ofstream &html) override;
   void alloc_validation(std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_prmtr);
 };
 

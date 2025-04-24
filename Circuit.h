@@ -51,6 +51,10 @@ public:
   void clear_circuit_elements();
 
   void alloc_validation(std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr);
+
+  void generate_circuit();
+
+  void html_art(std::ofstream &html) override;
 };
 
 

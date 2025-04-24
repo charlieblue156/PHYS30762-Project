@@ -43,6 +43,8 @@ public:
 
   //Prints data for the xBlock object
   virtual void print_xblock_data();
+
+  virtual void html_art(std::ofstream &html)=0;
 };
 
 #endif

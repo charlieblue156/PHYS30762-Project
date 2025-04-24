@@ -51,9 +51,7 @@ public:
   Resistor &operator=(const Resistor &other);
 
   void print_xblock_data() override;
-
-
-
+  void html_art(std::ofstream &html) override;
 };
 
 class Capacitor:public Component
@@ -71,7 +69,7 @@ public:
   Capacitor &operator=(const Capacitor &other);
 
   void print_xblock_data() override;
-
+  void html_art(std::ofstream &html) override;
 };
 
 class Inductor:public Component
@@ -89,6 +87,7 @@ public:
   Inductor &operator=(const Inductor &other);
 
   void print_xblock_data() override;
+  void html_art(std::ofstream &html) override;
 };
 
 

@@ -3,6 +3,7 @@
 #include "yBlock.h"
 #include "Circuit.h"
 #include<iostream>
+#include<fstream>
 #include<string>
 #include<vector>
 #include<memory>
@@ -73,6 +74,18 @@ void Resistor::print_xblock_data()
     std::cout<<"Resistance: "<<this->get_value()<<" [Ω]."<<std::endl;
 }
 
+void Resistor::html_art(std::ofstream &html)
+{
+    html<<"<div class=\"component selectableComponent\"";
+    html<<" data-name=\"" << name ;
+    html<<"\" data-type=\"Resistor\"";
+    html<<" data-value=\""<<value<<"[Ω]\"";
+    html<<" data-impedance_mag=\""<<get_z_magnitude()<<"[Ω]\"";
+    html<<" data-impedance_phase=\""<<get_z_phase()<<"[rad]\">";
+    html << "R";
+    html << "</div>";
+}
+
 Capacitor::Capacitor(const Capacitor&original) : Component(original)
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
@@ -110,6 +123,17 @@ void Capacitor::print_xblock_data()
     std::cout<<"Capacitor: "<<this->get_value()<<" [F]."<<std::endl;
 }
 
+void Capacitor::html_art(std::ofstream &html)
+{
+    html<<"<div class=\"component selectableComponent\"";
+    html<<" data-name=\"" << name ;
+    html<<"\" data-type=\"Capacitor\"";
+    html<<" data-value=\""<<value<<"[F]\"";
+    html<<" data-impedance_mag=\""<<get_z_magnitude()<<"[Ω]\"";
+    html<<" data-impedance_phase=\""<<get_z_phase()<<"[rad]\">";
+    html << "C";
+    html << "</div>";
+}
 
 Inductor::Inductor(const Inductor&original) : Component(original)
 {
@@ -149,6 +173,19 @@ void Inductor::print_xblock_data()
     std::cout<<"Inductor: "<<this->get_value()<<" [H]."<<std::endl;
 
 }
+
+void Inductor::html_art(std::ofstream &html)
+{
+    html<<"<div class=\"component selectableComponent\"";
+    html<<" data-name=\"" << name ;
+    html<<"\" data-type=\"Inductor\"";
+    html<<" data-value=\""<<value<<"[H]\"";
+    html<<" data-impedance_mag=\""<<get_z_magnitude()<<"[Ω]\"";
+    html<<" data-impedance_phase=\""<<get_z_phase()<<"[rad]\">";
+    html << "L";
+    html << "</div>";
+}
+
 
 
 void Resistor::set_z_complex(double value_input, double omega_input)

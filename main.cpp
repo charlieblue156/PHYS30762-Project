@@ -25,38 +25,23 @@ int main()
     y_elements_1["r1"]=component_library.get_component("r1");
     y_elements_1["c1"]=component_library.get_component("c1"); 
     y_elements_1["i1"]=component_library.get_component("i1");
+    y_elements_1["y1"]=std::make_shared<yBlock>("y1", y_elements_1);
 
 
     std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_2;
-    y_elements_1["i1"]=component_library.get_component("i1");
+    y_elements_2["i1"]=component_library.get_component("i1");
 
 
     std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_1_elements;
     circuit_1_elements["y1"]=std::make_shared<yBlock>("y1", y_elements_1);
     circuit_1_elements["y2"]=std::make_shared<yBlock>("y2", y_elements_2);
-    circuit_1_elements["y3"]=std::make_shared<yBlock>("y3", y_elements_2);
+    circuit_1_elements["i1"]=component_library.get_component("i1");
+    circuit_1_elements["c1"]=std::make_shared<Circuit>("c1", 50, circuit_1_elements);
 
 
     Circuit circuit1{"circuit1", 50, std::move(circuit_1_elements)};
     circuit1.activate_circuit(); 
-    circuit1.find_element("c1");
-    circuit1.find_element("y1");
-    circuit1.find_element("f2");
-
-    //testing for empties
-    std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_2_elements;
-    Circuit circuit2{"circuit2", 50, std::move(circuit_2_elements)};
-    circuit2.activate_circuit();
-    circuit2.find_element("c1");
-    circuit2.find_element("y1");
-
-    std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_3;
-    std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_3_elements;
-    circuit_3_elements["y1"]=std::make_shared<yBlock>("y1", y_elements_3);
-    Circuit circuit3{"circuit3", 50, std::move(circuit_3_elements)};
-    circuit3.activate_circuit();
-    circuit3.find_element("c1");
-    circuit3.find_element("y1");
+    circuit1.generate_circuit();
 
     //Further encapsiulate, components/elements can only be added to containers via functions,
     //These funtions check for bad alloc (catch)
@@ -80,7 +65,7 @@ To do list:
 
 
 - Ascii 
-
+Add in the yblock and recursive circuit clickables, tidy up then done
 
 - Catch, throw, exceptions
 inc: empty vectors, invalid values, invalid name, incorrect type etc
