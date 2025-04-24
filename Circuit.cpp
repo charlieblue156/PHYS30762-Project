@@ -4,7 +4,7 @@
 #include<vector>
 #include<memory>
 #include<complex>
-#include<unordered_map>
+#include<algorithm>
 
 #include "Component.h"
 #include "xBlock.h"
@@ -14,7 +14,7 @@
 
 void Circuit::set_z_complex()
 {
-    for(const auto& [name,circuit_elements_ptr] : circuit_elements) 
+    for(const auto& circuit_elements_ptr : circuit_elements) 
     {
         if(circuit_elements_ptr)
         { 
@@ -23,7 +23,7 @@ void Circuit::set_z_complex()
     }
 }
 
-void Circuit::alloc_validation(std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr)
+void Circuit::alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
 {
     try
     {
@@ -35,7 +35,7 @@ void Circuit::alloc_validation(std::string name_prmtr, std::unordered_map<std::s
     }
 }
 
-Circuit::Circuit(const std::string name_prmtr, double omega_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr) : xBlock(name_prmtr), omega{omega_prmtr}
+Circuit::Circuit(const std::string name_prmtr, double omega_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr) : xBlock(name_prmtr), omega{omega_prmtr}
 {
     alloc_validation(name_prmtr, circuit_elements_prmtr);
 }
@@ -81,7 +81,7 @@ Circuit &Circuit::operator=(Circuit &&temp)
 void Circuit::activate_circuit()
 {
     std::cout<<'\n'<<"Activating "<<this->get_name()<<"."<<std::endl;
-    for(const auto &[name,circuit_element_ptr]: this->circuit_elements) 
+    for(const auto &circuit_element_ptr: this->circuit_elements) 
     {
         if(circuit_element_ptr)
             {
@@ -113,7 +113,7 @@ void Circuit::find_element(const std::string &name)
 void Circuit::print_circuit_elements()
 {
     std::cout<<'\n'<<"Printing circuit elements for "<<this->get_name()<<"."<<std::endl;
-    for(const auto &[name,circuit_element_ptr] : this->circuit_elements) 
+    for(const auto &circuit_element_ptr : this->circuit_elements) 
     {
         if(circuit_element_ptr)
         { 
@@ -127,32 +127,56 @@ void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> circ
 {
     try
     {
-        circuit_elements.insert({name, circuit_element_ptr});
+        circuit_elements.push_back(circuit_element_ptr);
     }
     catch(const std::bad_alloc& memFail)
     {
         std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
     }
 }
-void Circuit::remove_circuit_element(std::string name, std::shared_ptr<xBlock> circuit_element_ptr)
+void Circuit::remove_circuit_element(std::string name)
 {
-    auto iterator=circuit_elements.find(name);
-    if (iterator!=circuit_elements.end()) 
+    auto iterator = std::find_if(circuit_elements.begin(), circuit_elements.end(), [&name](const std::shared_ptr<xBlock> &circuit_element_ptr) 
+    {
+        return circuit_element_ptr && circuit_element_ptr->get_name() == name; 
+    });
+
+    if(iterator!=circuit_elements.end()) 
     {
         circuit_elements.erase(iterator);
-        std::cout<<name<<" removed from "<<this->get_name()<<"."<<std::endl;
+        std::cout << name << " removed from " << this->get_name() << "." << std::endl;
+        return;
     } 
     else 
     {
-        std::cout<<name<<" not found in "<<this->get_name()<<"."<<std::endl;
+
+        for(const auto &element_ptr : circuit_elements)
+        {
+            if(!element_ptr) continue;
+            if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
+            {
+                circuit_ptr->remove_circuit_element(name);
+            }
+            else if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get())) 
+            {
+                y_block_ptr->remove_y_element(name);
+            }
+        }
+        std::cout << name << " not found in " << this->get_name() << "." << std::endl;
     }
 
 }
-void Circuit::add_circuit_elements(std::string name, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr)
+void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
 {
     try
     {
-        circuit_elements.insert(circuit_elements_prmtr.begin(), circuit_elements_prmtr.end());
+        for (const auto &circuit_element_ptr : circuit_elements_prmtr) 
+        {
+            if (circuit_element_ptr) 
+            {
+                circuit_elements.push_back(circuit_element_ptr);
+            }
+        }
     }
     catch(const std::bad_alloc& memFail)
     {
@@ -167,7 +191,7 @@ void Circuit::clear_circuit_elements()
     z_complex=0.0;
 }
 
-void Circuit::html_art(std::ofstream &html)
+/*void Circuit::html_art(std::ofstream &html)
 {
     html<<"<div class=\"circuit\">";
     for(const auto &[name,circuit_element_ptr] : this->circuit_elements) 
@@ -181,8 +205,26 @@ void Circuit::html_art(std::ofstream &html)
         }
     }
     html<<"</div>"; 
+}*/
+
+void Circuit::html_art(std::ofstream &html)
+{
+
+
+    for (const auto circuit_element_ptr : this->circuit_elements)
+    {
+        if (!circuit_element_ptr) continue;
+
+        // Add a vline BEFORE each item (except maybe first)
+
+
+        circuit_element_ptr->html_art(html); // Let each element draw itself
+        html << "<div class=\"vline\"></div>";
+    }
+
 
 }
+
 
 void Circuit::generate_circuit()
 {
@@ -208,25 +250,31 @@ void Circuit::generate_circuit()
     text-align: center;
   }
 
-  .wrapper {
+  .wrapper 
+  {
     display: flex;
     align-items: flex-start;
     padding: 40px;
     gap: 40px;
   }
 
-.circuit {
+.circuit 
+{
   display: flex;
-  flex-direction: column; /* This ensures components are stacked vertically */
-  align-items: center; /* This will ensure each element in the circuit is centered horizontally */
+  flex-direction: column; /* Stack components vertically */
+  align-items: center; /* Center components horizontally */
   font-size: 2rem;
   white-space: nowrap;
   min-width: 0; /* Prevent shrinking */
   flex-shrink: 0; /* Prevent shrinking of circuit */
   gap: 20px; /* Space between the components */
+  width: auto;  /* Make the circuit container width auto-adjust based on content */
 }
 
-.component {
+
+
+.component 
+{
   display: flex;
   flex-direction: column;
   align-items: center; /* Ensures the content is centered horizontally */
@@ -238,11 +286,13 @@ void Circuit::generate_circuit()
   display: inline-block;
   font-size: 2rem;
 }
-  .spacer {
+  .spacer 
+  {
     width: 20px;
   }
 
-.branch {
+.branch 
+{
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -257,7 +307,8 @@ void Circuit::generate_circuit()
 }
 
 
-.vline {
+.vline 
+{
   width: 2px;
   background: #eee;
   flex-grow: 1;
@@ -265,15 +316,19 @@ void Circuit::generate_circuit()
   min-height: 30px;
 }
 
-  .parallel {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin: 10px 0;
-    gap: 40px;
-  }
+.parallel 
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 10px 0;
+  gap: 40px;
+  width: auto;  /* Allow the width to adjust to the contents */
+  flex-wrap: wrap;  /* Allows components to wrap if necessary */
+}
 
-.wire {
+.wire 
+{
   display: flex;
   justify-content: center; /* Center the horizontal wire line */
   width: 100%;
@@ -341,7 +396,7 @@ void Circuit::generate_circuit()
     html << "<div class=\"component\">+</div>";
     html<<"<div class=\"vline\"></div>";
 
-    html_art(html); // draw all components
+    this->html_art(html); // draw all components
 
     html << "<div class=\"component\">⏚</div>";
     html << "</div>"; // end of .circuit

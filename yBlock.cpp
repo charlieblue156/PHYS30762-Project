@@ -4,7 +4,7 @@
 #include<memory>
 #include<complex>
 #include<fstream>
-#include<unordered_map>
+#include<algorithm>
 
 #include "Component.h"
 #include "xBlock.h"
@@ -17,7 +17,7 @@ void yBlock::set_z_complex()
 {
     if(y_elements.size()==1)
     {
-        for(const auto &[name,x_ptr] : y_elements) 
+        for(const auto &x_ptr : y_elements) 
         {
             z_complex=(x_ptr->get_z_complex());
         }
@@ -25,7 +25,7 @@ void yBlock::set_z_complex()
     else
     {
         std::complex<double> z_reciprocal_sum;
-        for(const auto &[name,x_ptr] : y_elements) 
+        for(const auto &x_ptr : y_elements) 
         {
             z_reciprocal_sum+=1.0/(x_ptr->get_z_complex());
         }
@@ -33,7 +33,8 @@ void yBlock::set_z_complex()
   }
 }
 
-void yBlock::alloc_validation(std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_prmtr)
+//MOVE!! &&
+void yBlock::alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
     try
     {
@@ -45,7 +46,7 @@ void yBlock::alloc_validation(std::string name_prmtr, std::unordered_map<std::st
     }
 }
 
-yBlock::yBlock(const std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_prmtr) : xBlock(name_prmtr)
+yBlock::yBlock(const std::string name_prmtr,   std::vector<std::shared_ptr<xBlock>> y_elements_prmtr) : xBlock(name_prmtr)
 {
     alloc_validation(name_prmtr, y_elements_prmtr);
 }
@@ -90,7 +91,7 @@ yBlock &yBlock::operator=(yBlock &&temp)
 
 void activate_y_block(yBlock &y_block, double omega)
 {
-    for(const auto &[name,y_element_ptr] : y_block.y_elements) 
+    for(const auto &y_element_ptr : y_block.y_elements) 
     {
         if(y_element_ptr)
         { 
@@ -100,19 +101,12 @@ void activate_y_block(yBlock &y_block, double omega)
     y_block.set_z_complex();
 }
 
-/*
-std::shared_ptr<xBlock> yBlock::find_element(const std::string &name)
-{
-    std::shared_ptr<xBlock> search_result{};
-    search_result=find_element_algorithm(name, y_elements);
-    return search_result;
-}
-    */
+
 
 void yBlock::print_yelements()
 {
     std::cout<<'\n'<<"Printing yBlock elements for "<<this->get_name()<<"."<<std::endl;
-    for(const auto &[name,y_element_ptr] : y_elements) 
+    for(const auto &y_element_ptr : y_elements) 
     {
         if(y_element_ptr)
         { 
@@ -126,7 +120,7 @@ void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> y_element_p
 {
     try
     {
-        y_elements.insert({name, y_element_ptr});
+        y_elements.push_back(y_element_ptr);
     }
     catch(const std::bad_alloc& memFail)
     {
@@ -134,24 +128,51 @@ void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> y_element_p
     }
 }
 
-void yBlock::remove_y_element(std::string name, std::shared_ptr<xBlock> y_element_ptr)
+void yBlock::remove_y_element(const std::string name)
 {
-    auto iterator=y_elements.find(name);
+    auto iterator = std::find_if(y_elements.begin(), y_elements.end(), [&name](const std::shared_ptr<xBlock> &y_element_ptr) 
+    {
+        return y_element_ptr && y_element_ptr->get_name() == name; 
+    });
+
     if(iterator!=y_elements.end()) 
     {
         y_elements.erase(iterator);
+        std::cout << name << " removed from " << this->get_name() << "." << std::endl;
+        return;
     } 
     else 
     {
-        std::cerr<<name<<" not found in "<<this->get_name()<<"."<<std::endl;
+
+        for(const auto &element_ptr : y_elements)
+        {
+            if(!element_ptr) continue;
+            if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
+            {
+                circuit_ptr->remove_circuit_element(name);
+            }
+            else if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get())) 
+            {
+                y_block_ptr->remove_y_element(name);
+            }
+        }
+        std::cout << name << " not found in " << this->get_name() << "." << std::endl;
     }
+
 }
 
-void yBlock::add_y_elements(std::string name, std::unordered_map<std::string, std::shared_ptr<xBlock>> y_elements_prmtr)
+
+void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
     try
     {
-        y_elements.insert(y_elements_prmtr.begin(), y_elements_prmtr.end());
+        for(const auto &y_element_ptr : y_elements_prmtr) 
+        {
+            if(y_element_ptr) 
+            {
+                y_elements.push_back(y_element_ptr);
+            }
+        }
     }
     catch(const std::bad_alloc& memFail)
     {
@@ -167,7 +188,7 @@ void yBlock::clear_y_elements()
 }
 
 
-void yBlock::html_art(std::ofstream &html)
+/*void yBlock::html_art(std::ofstream &html)
 {
     if(y_elements.size()>1)
     {
@@ -206,6 +227,45 @@ void yBlock::html_art(std::ofstream &html)
                 html<<"</div>";
                 //html<<"<div class=\"component\">|</div>";
             }
+        }
+    }
+}*/
+
+void yBlock::html_art(std::ofstream &html)
+{
+    if (y_elements.size() > 1)
+    {// vline before
+
+
+        html << "<div class=\"parallel\">";
+        html << "<div class=\"hline selectableMap\""
+        << " data-name=\"" << name << "\""
+        << " data-impedance_mag=\"" << get_z_magnitude() << "[Ω]\""
+        << " data-impedance_phase=\"" << get_z_phase() << "[rad]\">"
+        << "</div>";
+        for (const auto &y_element_ptr : y_elements)
+        {
+            if (!y_element_ptr) continue;
+            html << "<div class=\"branch\">";
+            html << "<div class=\"vline\"></div>";
+ // Allow nesting
+            y_element_ptr->html_art(html);
+
+            html << "<div class=\"vline\"></div>";
+            html << "</div>";
+        }
+        html << "<div class=\"hline\"></div>";
+        html << "</div>";
+
+
+ // vline after
+    }
+    else if (!y_elements.empty())
+    {
+        for (const auto & y_element_ptr : y_elements)
+        {
+
+            y_element_ptr->html_art(html);
         }
     }
 }

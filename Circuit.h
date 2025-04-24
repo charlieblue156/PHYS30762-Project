@@ -19,13 +19,13 @@ class Circuit:public xBlock
 {
 
 private:
-  std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements{};
+  std::vector<std::shared_ptr<xBlock>> circuit_elements{};
   double omega;
   void set_z_complex();
 
 public:
   Circuit()=default;
-  Circuit(const std::string name_prmtr, double omega_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr);
+  Circuit(const std::string name_prmtr, double omega_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr);
   Circuit(const Circuit&original);
   Circuit(Circuit &&temp);
   ~Circuit(){}
@@ -37,7 +37,7 @@ public:
   void set_omega(double omega_input) {omega=omega_input;}
   double get_omega() const {return omega;}
 
-  std::unordered_map<std::string, std::shared_ptr<xBlock>> get_circuit_elements() const {return circuit_elements;}
+  std::vector<std::shared_ptr<xBlock>> get_circuit_elements() const {return circuit_elements;}
 
   void activate_circuit();
 
@@ -46,11 +46,11 @@ public:
   void print_circuit_elements();
 
   void add_circuit_element(std::string name, std::shared_ptr<xBlock> circuit_element_ptr);
-  void remove_circuit_element(std::string name, std::shared_ptr<xBlock> circuit_element_ptr);
-  void add_circuit_elements(std::string name, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr);
+  void remove_circuit_element(std::string name);
+  void add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr);
   void clear_circuit_elements();
 
-  void alloc_validation(std::string name_prmtr, std::unordered_map<std::string, std::shared_ptr<xBlock>> circuit_elements_prmtr);
+  void alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr);
 
   void generate_circuit();
 

@@ -4,7 +4,7 @@
 #include<memory>
 #include<complex>
 #include<cmath>
-#include<unordered_map>
+#include<algorithm>
 #include "Component.h"
 #include "xBlock.h"
 #include "yBlock.h"
@@ -50,37 +50,40 @@ void xBlock::print_xblock_data()
     }
 }
 
-std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, const std::unordered_map<std::string, std::shared_ptr<xBlock>> &map)
+std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, const std::vector<std::shared_ptr<xBlock>> &vctr)
 {
     std::shared_ptr<xBlock> search_result{};
-    auto iterator=map.find(name);
-    if(iterator!=map.end()) 
+    auto iterator=std::find_if(vctr.begin(), vctr.end(), [&name](const std::shared_ptr<xBlock> &element_ptr) 
     {
-        return iterator->second;
-    } 
-    else 
+        return element_ptr->get_name()==name;
+    });
+
+    if(iterator!=vctr.end())
     {
-        for(const auto &[element_name, element_ptr] : map) 
+        return *iterator;
+    }
+
+    for(const auto &element_ptr : vctr)
+    {
+        if(!element_ptr) continue;
+        if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
         {
-            if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get()))
+            search_result=circuit_ptr->find_element_algorithm(name, circuit_ptr->get_circuit_elements());
+            if(search_result!=nullptr) 
             {
-                search_result=y_block_ptr->find_element_algorithm(name, y_block_ptr->get_y_elements());
-                if (search_result!=nullptr) 
-                {
-                  return search_result;
-                }
-            }
-            else if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
-            {
-                search_result=circuit_ptr->find_element_algorithm(name, circuit_ptr->get_circuit_elements());
-                if(search_result!=nullptr) 
-                {
-                    return search_result;
-                }
+                return search_result;
             }
         }
-        return nullptr;
+        else if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get())) 
+        {
+            search_result=y_block_ptr->find_element_algorithm(name, y_block_ptr->get_y_elements());
+            if(search_result!=nullptr) 
+            {
+                return search_result;
+            }
+        }
     }
+    return nullptr;
 }
 
 
