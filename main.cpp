@@ -25,7 +25,8 @@ int main()
     y_elements_1.push_back(component_library.get_component("r1"));
     y_elements_1.push_back(component_library.get_component("c1"));
     y_elements_1.push_back(component_library.get_component("i1"));
-    y_elements_1.push_back(std::make_shared<yBlock>("y1", y_elements_1));
+    std::vector<std::shared_ptr<xBlock>> y_elements_1_copy = y_elements_1;
+    y_elements_1.push_back(std::make_shared<yBlock>("y1", std::move(y_elements_1_copy)));
 
 
     std::vector<std::shared_ptr<xBlock>> y_elements_2;
@@ -33,8 +34,7 @@ int main()
 
 
     std::vector<std::shared_ptr<xBlock>> circuit_1_elements;
-    circuit_1_elements.push_back(std::make_shared<yBlock>("y1", y_elements_1));
-    circuit_1_elements.push_back(std::make_shared<yBlock>("y2", y_elements_2));
+    circuit_1_elements.push_back(std::make_shared<yBlock>("y1", std::move(y_elements_1)));
     circuit_1_elements.push_back(component_library.get_component("i1"));
 
 
@@ -42,9 +42,9 @@ int main()
 
     Circuit circuit2{"circuit2", 50, circuit_1_elements};
     circuit_1_elements.push_back(std::make_shared<Circuit>("C1", 50, std::move(circuit2.get_circuit_elements())));
-    y_elements_2.push_back(std::make_shared<Circuit>("C1", 50, std::move(circuit_1_elements)));
+    y_elements_2.push_back(std::make_shared<Circuit>("C1", 50, circuit_1_elements));
     y_elements_2.push_back(component_library.get_component("i1"));
-    circuit_1_elements.push_back(std::make_shared<yBlock>("y3", y_elements_2));
+    circuit_1_elements.push_back(std::make_shared<yBlock>("y3", std::move(y_elements_2)));
     Circuit circuit1{"circuit1", 50, circuit_1_elements};
     circuit1.activate_circuit(); 
     circuit1.generate_circuit();

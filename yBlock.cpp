@@ -11,29 +11,47 @@
 #include "yBlock.h"
 #include "Circuit.h"
 
-//logic for parallel impedance
-  //add in catch throw except, especially for .size()=0
-void yBlock::set_z_complex()
+void activate_y_block(yBlock &y_block, double omega)
 {
-    if(y_elements.size()==1)
+    for(const auto &y_element_ptr : y_block.y_elements) 
     {
-        for(const auto &x_ptr : y_elements) 
-        {
-            z_complex=(x_ptr->get_z_complex());
+        if(y_element_ptr)
+        { 
+            y_block.activate_x_block(*y_element_ptr, omega);
         }
     }
-    else
-    {
-        std::complex<double> z_reciprocal_sum;
-        for(const auto &x_ptr : y_elements) 
-        {
-            z_reciprocal_sum+=1.0/(x_ptr->get_z_complex());
-        }
-        z_complex=(1.0/z_reciprocal_sum);
-  }
+    y_block.set_z_complex();
 }
-
-//MOVE!! &&
+void yBlock::set_z_complex()
+{
+    try
+    {
+        if(y_elements.empty())
+        {
+            throw std::invalid_argument(this->get_name()+" has no elements.");
+        }
+        if(y_elements.size()==1)
+        {
+            for(const auto &x_ptr : y_elements) 
+            {
+                z_complex=(x_ptr->get_z_complex());
+            }
+        }
+        else
+        {
+            std::complex<double> z_reciprocal_sum;
+            for(const auto &x_ptr : y_elements) 
+            {
+                z_reciprocal_sum+=1.0/(x_ptr->get_z_complex());
+            }
+            z_complex=(1.0/z_reciprocal_sum);
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
 void yBlock::alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
     try
@@ -45,25 +63,20 @@ void yBlock::alloc_validation(std::string name_prmtr, std::vector<std::shared_pt
         std::cerr<<"Memory allocation failed for "<<name_prmtr<<"."<<std::endl;
     }
 }
-
-yBlock::yBlock(const std::string name_prmtr,   std::vector<std::shared_ptr<xBlock>> y_elements_prmtr) : xBlock(name_prmtr)
+yBlock::yBlock(const std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr) : xBlock(name_prmtr)
 {
-    alloc_validation(name_prmtr, y_elements_prmtr);
+    alloc_validation(name_prmtr, std::move(y_elements_prmtr));
 }
-
 yBlock::yBlock(const yBlock&original) : xBlock(original)
 {
     std::cout<<"Copy constructor for"<<name<<" called."<<std::endl;
     alloc_validation(original.name, original.y_elements);
 }
-
 yBlock::yBlock(yBlock &&temp) : xBlock(std::move(temp))
 {
     std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
     alloc_validation(name, temp.y_elements);
 }
-
-//catch etc
 yBlock &yBlock::operator=(const yBlock &other)
 {
     std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
@@ -76,7 +89,6 @@ yBlock &yBlock::operator=(const yBlock &other)
     return *this;
    
 }
-
 yBlock &yBlock::operator=(yBlock &&temp)
 {
     std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
@@ -87,22 +99,6 @@ yBlock &yBlock::operator=(yBlock &&temp)
     }
     return *this;
 }
-
-
-void activate_y_block(yBlock &y_block, double omega)
-{
-    for(const auto &y_element_ptr : y_block.y_elements) 
-    {
-        if(y_element_ptr)
-        { 
-            y_block.activate_x_block(*y_element_ptr, omega);
-        }
-    }
-    y_block.set_z_complex();
-}
-
-
-
 void yBlock::print_yelements()
 {
     std::cout<<'\n'<<"Printing yBlock elements for "<<this->get_name()<<"."<<std::endl;
@@ -114,8 +110,6 @@ void yBlock::print_yelements()
         }
     }
 }
-
-
 void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> y_element_ptr)
 {
     try
@@ -127,7 +121,6 @@ void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> y_element_p
         std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
     }
 }
-
 void yBlock::remove_y_element(const std::string name)
 {
     auto iterator = std::find_if(y_elements.begin(), y_elements.end(), [&name](const std::shared_ptr<xBlock> &y_element_ptr) 
@@ -160,8 +153,6 @@ void yBlock::remove_y_element(const std::string name)
     }
 
 }
-
-
 void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
     try
@@ -179,92 +170,38 @@ void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock
         std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
     }
 }
-
 void yBlock::clear_y_elements()
 {
     y_elements.clear();
     std::cout<<"yBlock elements cleared."<<std::endl;
     z_complex=0.;
 }
-
-
-/*void yBlock::html_art(std::ofstream &html)
-{
-    if(y_elements.size()>1)
-    {
-        html<<"<div class=\"hline selectableMap\"";
-        html<<" data-name=\"" << name <<"\"";
-        html<<" data-impedance_mag=\""<<this->get_z_magnitude()<<"[Ω]\"";
-        html<<" data-impedance_phase=\""<<this->get_z_phase()<<"[rad]\">";
-        html << "</div>";
-
-        html<<"<div class=\"parallel\">";
-        for(const auto &[name,y_element_ptr] : y_elements) 
-        {
-            if(y_element_ptr)
-            { 
-                html<<"<div class=\"branch\">";
-                html<<"<div class=\"vline\"></div>";
-                html<<"<div class=\"component\">";
-                y_element_ptr->html_art(html);
-                html<<"</div>";
-                html<<"<div class=\"vline\"></div>";
-                html<<"</div>";
-            }
-        }
-        html<<"</div>";
-        html<<"<div class=\"hline\">";
-        html<<"</div>";
-    }
-    else
-    {
-        for(const auto &[name,y_element_ptr] : y_elements) 
-        {
-            if(y_element_ptr)
-            { 
-                html<<"<div class=\"component\">";
-                y_element_ptr->html_art(html);
-                html<<"</div>";
-                //html<<"<div class=\"component\">|</div>";
-            }
-        }
-    }
-}*/
-
 void yBlock::html_art(std::ofstream &html)
 {
     if (y_elements.size() > 1)
-    {// vline before
-
-
-        html << "<div class=\"parallel\">";
-        html << "<div class=\"hline selectableMap\""
-        << " data-name=\"" << name << "\""
-        << " data-impedance_mag=\"" << get_z_magnitude() << "[Ω]\""
-        << " data-impedance_phase=\"" << get_z_phase() << "[rad]\">"
-        << "</div>";
+    {
+        html<<"<div class=\"parallel\">";
+        html<<"<div class=\"hline selectableMap\"";
+        html<<"data-name=\""<<name<<"\"";
+        html<<"data-impedance_mag=\""<<get_z_magnitude()<<"[Ω]\"";
+        html<<"data-impedance_phase=\""<< get_z_phase()<<"[rad]\">";
+        html<<"</div>";
         for (const auto &y_element_ptr : y_elements)
         {
-            if (!y_element_ptr) continue;
-            html << "<div class=\"branch\">";
-            html << "<div class=\"vline\"></div>";
- // Allow nesting
+            if(!y_element_ptr) continue;
+            html<<"<div class=\"branch\">";
+            html<<"<div class=\"vline\"></div>";
             y_element_ptr->html_art(html);
-
-            html << "<div class=\"vline\"></div>";
-            html << "</div>";
+            html<<"</div>";
         }
-        html << "<div class=\"hline\"></div>";
-        html << "</div>";
-
-
- // vline after
+        html<<"<div class=\"hline\"></div>";
+        html<<"</div>";
+        html<<"<div class=\"vline\"></div>";
     }
-    else if (!y_elements.empty())
+    else if(!y_elements.empty())
     {
-        for (const auto & y_element_ptr : y_elements)
+        for(const auto &y_element_ptr : y_elements)
         {
-
             y_element_ptr->html_art(html);
         }
     }

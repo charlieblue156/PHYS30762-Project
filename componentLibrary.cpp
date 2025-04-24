@@ -35,23 +35,11 @@ void componentLibrary::duplication_validation(std::shared_ptr<Component> &new_co
             }
         }
     }
-    std::cout<<"Success."<<std::endl;
+    std::cout<<"Duplication check success."<<std::endl;
     component_library[new_component->get_name()]=new_component;
+    std::cout<<new_component->get_name()<<" added to "<<name<<"."<<std::endl;
     return;
 }
-
-void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
-{
-    try
-    {
-        duplication_validation(new_component);
-    }
-    catch(const std::bad_alloc& memFail)
-    {
-        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
-    }
-}
-
 componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
 {
     for(const auto &[name, component_ptr] : original.component_library) 
@@ -62,28 +50,6 @@ componentLibrary::componentLibrary(const componentLibrary&original) : component_
         }
     }
 }
-
-componentLibrary &componentLibrary::operator=(const componentLibrary &other)
-{
-    if(this!=&other)
-    {
-        component_library.clear();
-        for(const auto &[name,component] : other.component_library) 
-        {
-            component_library[name]=component;
-        }
-    }
-    return *this;
-}
-componentLibrary &componentLibrary::operator=(componentLibrary &&temp)
-{
-    if(this!=&temp)
-    {
-        component_library=std::move(temp.component_library);
-    }
-    return *this;
-}
-
 std::shared_ptr<Component> componentLibrary::get_component(std::string library_index)
 {
     std::cout<<'\n'<<"Searching for "<<library_index<<" in "<<name<<"."<<std::endl;
@@ -97,5 +63,16 @@ std::shared_ptr<Component> componentLibrary::get_component(std::string library_i
     {
         std::cout<<library_index<<" not found in "<<name<<"."<<std::endl;
         return nullptr;
+    }
+}
+void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
+{
+    try
+    {
+        duplication_validation(new_component);
+    }
+    catch(const std::bad_alloc& memFail)
+    {
+        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
     }
 }

@@ -10,59 +10,14 @@
 #include "yBlock.h"
 #include "Circuit.h"
 
-
-void xBlock::activate_x_block(xBlock &x_block, double omega)
-{
-    if(auto component=dynamic_cast<Component*>(&x_block)) 
-    {
-        activate_component(*component, omega);
-    }
-    else if(auto y_block=dynamic_cast<yBlock*>(&x_block)) 
-    {
-        activate_y_block(*y_block, omega);
-    }
-    else if(auto identified_circuit=dynamic_cast<Circuit*>(&x_block)) 
-    {
-        identified_circuit->activate_circuit();
-    }
-}
-
-
-void xBlock::print_xblock_data()
-{
-    std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
-    try
-    {
-        if(std::isfinite(z_complex.real())&&std::isfinite(z_complex.imag()))
-        {
-            std::cout<<"Complex impedance: "<<this->get_z_real()<<(this->get_z_imaginary()<0?" ":" +")<<this->get_z_imaginary()<<"i [Ω]."<<std::endl;
-            std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [Ω]."<<std::endl;
-            std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
-        }
-        else
-        {
-            throw std::runtime_error("Invalid complex impedance for "+this->get_name()+". Please enter impedance values that are nonzero or infinite for real and imaginary parts.");
-        }
-    }
-    catch(const std::runtime_error &e)
-    {
-        std::cerr<<e.what()<<std::endl;
-    }
-}
-
 std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, const std::vector<std::shared_ptr<xBlock>> &vctr)
 {
     std::shared_ptr<xBlock> search_result{};
-    auto iterator=std::find_if(vctr.begin(), vctr.end(), [&name](const std::shared_ptr<xBlock> &element_ptr) 
-    {
-        return element_ptr->get_name()==name;
-    });
-
+    auto iterator=std::find_if(vctr.begin(), vctr.end(), [&name](const std::shared_ptr<xBlock> &element_ptr){return element_ptr->get_name()==name;});
     if(iterator!=vctr.end())
     {
         return *iterator;
     }
-
     for(const auto &element_ptr : vctr)
     {
         if(!element_ptr) continue;
@@ -85,8 +40,6 @@ std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, 
     }
     return nullptr;
 }
-
-
 xBlock::xBlock(const xBlock &other) : z_complex(other.z_complex), name(other.name)
 {
     std::cout<<"Calling copy constructor for "<<this->get_name()<<"."<<std::endl;
@@ -95,7 +48,6 @@ xBlock::xBlock(xBlock &&temp) : z_complex(std::move(temp.z_complex)), name(std::
 {
     std::cout<<"Calling move constructor for "<<this->get_name()<<"."<<std::endl;
 }
-
 xBlock &xBlock::operator=(const xBlock &other)
 {
     if(this!=&other)
@@ -116,4 +68,29 @@ xBlock &xBlock::operator=(xBlock &&temp)
     }
     return *this;
 }
+void xBlock::activate_x_block(xBlock &x_block, double omega)
+{
+    if(auto component=dynamic_cast<Component*>(&x_block)) 
+    {
+        activate_component(*component, omega);
+    }
+    else if(auto y_block=dynamic_cast<yBlock*>(&x_block)) 
+    {
+        activate_y_block(*y_block, omega);
+    }
+    else if(auto identified_circuit=dynamic_cast<Circuit*>(&x_block)) 
+    {
+        identified_circuit->activate_circuit();
+    }
+}
+void xBlock::print_xblock_data()
+{
+    std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
+    std::cout<<"Complex impedance: "<<this->get_z_real()<<(this->get_z_imaginary()<0?" ":" +")<<this->get_z_imaginary()<<"i [Ω]."<<std::endl;
+    std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [Ω]."<<std::endl;
+    std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
+}
+
+
+
 
