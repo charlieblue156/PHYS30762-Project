@@ -15,55 +15,46 @@ int main()
     componentLibrary component_library{};
     component_library.set_name("component_library");
 
-    component_library.component_library_entry(std::make_shared<Resistor> ("r1", 5.0));
-    component_library.component_library_entry(std::make_shared<Capacitor> ("c1", 10.0));
-    component_library.component_library_entry(std::make_shared<Inductor> ("i1", 12.6));
-    component_library.component_library_entry(std::make_shared<Resistor> ("r1", 3.0));
-    component_library.component_library_entry(std::make_shared<Capacitor> ("c2", 10.0));
+    component_library.component_library_entry(std::make_shared<Resistor>(parameterised_constructor<Resistor>("r1", 5.0)));
+    component_library.component_library_entry(std::make_shared<Capacitor>(parameterised_constructor<Capacitor>("c1", 10.0)));
+    component_library.component_library_entry(std::make_shared<Inductor>(parameterised_constructor<Inductor>("i1", 12.6)));
 
-    std::vector<std::shared_ptr<xBlock>> y_elements_1;
-    y_elements_1.push_back(component_library.get_component("r1"));
-    y_elements_1.push_back(component_library.get_component("c1"));
-    y_elements_1.push_back(component_library.get_component("i1"));
-    std::vector<std::shared_ptr<xBlock>> y_elements_1_copy = y_elements_1;
-    y_elements_1.push_back(std::make_shared<yBlock>("y1", std::move(y_elements_1_copy)));
+    //Tests the name and type value exclusivity of the component library
+    component_library.component_library_entry(std::make_shared<Resistor>(parameterised_constructor<Resistor>("r1", 3.0)));
+    component_library.component_library_entry(std::make_shared<Capacitor>(parameterised_constructor<Capacitor>("c2", 10.0)));
 
 
-    std::vector<std::shared_ptr<xBlock>> y_elements_2;
+    //yBlock creation
+    yBlock y1("y1");
+    y1.add_y_element("r1", std::move(component_library.get_component("r1")));
+    y1.add_y_element("c1", std::move(component_library.get_component("c1")));
+    y1.add_y_element("i1", std::move(component_library.get_component("i1")));
+
+    //yBlock recursion
+    yBlock y1_copy= y1;
+    y1.add_y_element("y2", std::make_shared<yBlock>(y1_copy));
+
+
+    //Circuit creation
+    Circuit c1("c1", 50);
+    c1.add_circuit_element("y1", std::move(std::make_shared<yBlock>(y1)));
+    c1.add_circuit_element("i1", std::move(component_library.get_component("i1")));
+    c1.add_circuit_element("r1", std::move(component_library.get_component("r1")));
 
 
 
-    std::vector<std::shared_ptr<xBlock>> circuit_1_elements;
-    circuit_1_elements.push_back(std::make_shared<yBlock>("y1", std::move(y_elements_1)));
-    circuit_1_elements.push_back(component_library.get_component("i1"));
+    yBlock y2("y2");
+    Circuit c1_copy=c1;
+    y2.add_y_element("y1", std::move(std::make_shared<yBlock>(y1_copy)));
+    y2.add_y_element("c1", std::move(std::make_shared<Circuit>(c1_copy)));
 
+    c1.add_circuit_element("y2", std::move(std::make_shared<yBlock>(y2)));
 
-
-
-    Circuit circuit2{"circuit2", 50, circuit_1_elements};
-    circuit_1_elements.push_back(std::make_shared<Circuit>("C1", 50, std::move(circuit2.get_circuit_elements())));
-    y_elements_2.push_back(std::make_shared<Circuit>("C1", 50, circuit_1_elements));
-    y_elements_2.push_back(component_library.get_component("i1"));
-    circuit_1_elements.push_back(std::make_shared<yBlock>("y3", std::move(y_elements_2)));
-    Circuit circuit1{"circuit1", 50, circuit_1_elements};
-    circuit1.activate_circuit(); 
-    circuit1.generate_circuit();
-
-    //Further encapsiulate, components/elements can only be added to containers via functions,
-    //These funtions check for bad alloc (catch)
-    //Have catch/throw for infinite 
+    c1.activate_circuit(); 
+    c1.generate_circuit();
 
     return 0;
 }
 
 // g++ "Component.h" "Component.cpp" "xBlock.h" "xBlock.cpp" "yBlock.h" "yBlock.cpp" "Circuit.h" "Circuit.cpp" "main.cpp" "componentLibrary.cpp" "componentLibrary.h" -o Project.exe
 
-/*
-
-To do list:
-- try nested circuits in yBlock for ui
-
-
-- Test move and copy constructors and assignment operators
-
-*/

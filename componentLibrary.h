@@ -15,8 +15,9 @@ private:
   std::unordered_map<std::string, std::shared_ptr<Component>> component_library{};
   std::string name{""};
   void duplication_validation(std::shared_ptr<Component> &new_component);
+  void allocate(std::shared_ptr<Component> &new_component);
 public:
-  componentLibrary()=default;
+  componentLibrary(){}
   componentLibrary(const std::string name_prmtr, const std::unordered_map<std::string, std::shared_ptr<Component>> &&component_library_prmtr) : name(name_prmtr), component_library(std::move(component_library_prmtr)){}
   componentLibrary(const componentLibrary&original);
   componentLibrary(componentLibrary &&temp) : component_library(std::move(temp.component_library)){}

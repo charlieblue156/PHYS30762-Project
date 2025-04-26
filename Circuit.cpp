@@ -21,31 +21,60 @@ void Circuit::set_z_complex()
         }
     }
 }
-void Circuit::alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
+void Circuit::allocate(std::string name_prmtr, std::shared_ptr<xBlock> circuit_element_prmtr)
 {
     try
     {
-        circuit_elements=circuit_elements_prmtr;
+        validate_circuit_element(circuit_element_prmtr);
+        circuit_elements.push_back(circuit_element_prmtr);
     }
     catch(std::bad_alloc &memFail)
     {
         std::cerr<<"Memory allocation failed for "<<name_prmtr<<"."<<std::endl;
     }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<std::endl;
+    }
 }
-Circuit::Circuit(const std::string name_prmtr, double omega_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr) : xBlock(name_prmtr), omega{omega_prmtr}
+
+void Circuit::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
 {
-    alloc_validation(name_prmtr, circuit_elements_prmtr);
+    try
+    {
+        for(const auto &circuit_element_ptr: circuit_elements_prmtr) 
+        {
+            validate_circuit_element(circuit_element_ptr);
+            circuit_elements.push_back(circuit_element_ptr);
+        }
+    }
+    catch(std::bad_alloc &memFail)
+    {
+        std::cerr<<"Memory allocation failed for "<<name_prmtr<<"."<<std::endl;
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<std::endl;
+    }
+}
+
+void Circuit::validate_circuit_element(std::shared_ptr<xBlock> circuit_element_ptr)
+{
+    if(!circuit_element_ptr) 
+    {
+        throw std::invalid_argument("Null pointer passed to"+name+".");
+    }
 }
 Circuit::Circuit(const Circuit&original) : xBlock{original}, omega{original.omega}
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
-    alloc_validation(original.name, original.circuit_elements);
+    allocate(original.name, original.circuit_elements);
 }
 Circuit::Circuit(Circuit &&temp): xBlock(std::move(temp)), omega(std::move(temp.omega))
 {
     std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
     circuit_elements.clear();
-    alloc_validation(name, temp.circuit_elements);
+    allocate(name, temp.circuit_elements);
 }
 Circuit &Circuit::operator=(const Circuit &other)
 {
@@ -54,7 +83,7 @@ Circuit &Circuit::operator=(const Circuit &other)
     {
         xBlock::operator=(other);
         omega=other.omega;
-        alloc_validation(other.name, other.circuit_elements);
+        allocate(other.name, other.circuit_elements);
     }
     return *this;
 }
@@ -66,7 +95,7 @@ Circuit &Circuit::operator=(Circuit &&temp)
     {
         xBlock::operator=(std::move(temp));
         omega=std::move(temp.omega);
-        alloc_validation(name, temp.circuit_elements);
+        allocate(name, temp.circuit_elements);
     }
     return *this;
 }
@@ -108,16 +137,9 @@ void Circuit::print_circuit_elements()
         }
     }
 }
-void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> circuit_element_ptr)
+void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> &&circuit_element_ptr)
 {
-    try
-    {
-        circuit_elements.push_back(circuit_element_ptr);
-    }
-    catch(const std::bad_alloc& memFail)
-    {
-        std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
-    }
+    allocate(name, circuit_element_ptr);
 }
 void Circuit::remove_circuit_element(std::string name)
 {
@@ -151,22 +173,9 @@ void Circuit::remove_circuit_element(std::string name)
     }
 
 }
-void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
+void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr)
 {
-    try
-    {
-        for (const auto &circuit_element_ptr : circuit_elements_prmtr) 
-        {
-            if (circuit_element_ptr) 
-            {
-                circuit_elements.push_back(circuit_element_ptr);
-            }
-        }
-    }
-    catch(const std::bad_alloc& memFail)
-    {
-        std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
-    }
+  allocate(name, circuit_elements_prmtr);
 }
 void Circuit::clear_circuit_elements()
 {

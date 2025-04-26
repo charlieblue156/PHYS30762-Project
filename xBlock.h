@@ -15,6 +15,7 @@ protected:
   std::complex<double> z_complex;
   std::string name{""};
   xBlock(const std::string name_prmtr) : name(name_prmtr){}
+  xBlock(){}
   std::shared_ptr<xBlock> find_element_algorithm(const std::string &name, const std::vector<std::shared_ptr<xBlock>> &vctr); //Algorithm to find ptr<xBlock> within a circuit
   void activate_x_block(xBlock &x_block, double omega); //Sets the complex impedance of the xBlock object
 public:

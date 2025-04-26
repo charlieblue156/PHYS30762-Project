@@ -1,6 +1,8 @@
 #include <iostream> 
 #include <string>   
 #include<unordered_map>
+#include<stdexcept>
+#include<sstream>
 #include"xBlock.h"
 #include "yBlock.h"
 #include "Circuit.h"
@@ -13,33 +15,49 @@ void componentLibrary::duplication_validation(std::shared_ptr<Component> &new_co
     {
         if(existing_name==new_component->get_name())
         {
-            std::cout<<"A component with name "<<new_component->get_name()<<" already exists in "<<name<<". Please choose a new name."<<std::endl;
-            return;
+            throw std::invalid_argument("A component with name "+new_component->get_name()+" already exists in "+name+". Please choose a new name.");
+            
         }
-        else if((existing_component->get_value()==new_component->get_value())&&(typeid(*existing_component)==typeid(*new_component)))
+        else if((existing_component->get_value().value()==new_component->get_value().value())&&(typeid(*existing_component)==typeid(*new_component)))
         {
+            std::ostringstream ss;
+            ss<<new_component->get_value().value();
             if(typeid(*existing_component)==typeid(Resistor)) 
             {
-                std::cout<<"There exists a resistor in "<<name<<" of resistance "<<new_component->get_value()<<"[\u2126]. Select a new resiatance."<<std::endl;
-                return;
+                throw std::invalid_argument("There exists a resistor in "+name+" of resistance "+ss.str()+"[\u2126]. Select a new resiatance.");
             }
             else if(typeid(*existing_component)==typeid(Capacitor)) 
             {
-                std::cout<<"There exists a capacitor in "<<name<<" of capacitance "<<new_component->get_value()<<"[F]. Select a new capacitance."<<std::endl;
-                return;
+                throw std::invalid_argument("There exists a capacitor in "+name+" of capacitance "+ss.str()+"[F]. Select a new capacitance.");
             }
             else if(typeid(*existing_component)==typeid(Inductor)) 
             {
-                std::cout<<"There exists an inductor in "<<name<<" of inductance "<<new_component->get_value()<<"[H]. Select a new inductance."<<std::endl;
-                return;
+                throw std::invalid_argument("There exists an inductor in "+name+" of inductance "+ss.str()+"[H]. Select a new inductance.");
             }
         }
     }
     std::cout<<"Duplication check success."<<std::endl;
-    component_library[new_component->get_name()]=new_component;
-    std::cout<<new_component->get_name()<<" added to "<<name<<"."<<std::endl;
-    return;
+
 }
+
+void componentLibrary::allocate(std::shared_ptr<Component> &new_component)
+{
+    try
+    {
+        duplication_validation(new_component);
+        component_library[new_component->get_name()]=new_component;
+        std::cout<<new_component->get_name()<<" added to "<<name<<"."<<std::endl;
+    }
+    catch(const std::bad_alloc& memFail)
+    {
+        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<std::endl;
+    }
+}
+
 componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
 {
     for(const auto &[name, component_ptr] : original.component_library) 
@@ -67,12 +85,5 @@ std::shared_ptr<Component> componentLibrary::get_component(std::string library_i
 }
 void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
 {
-    try
-    {
-        duplication_validation(new_component);
-    }
-    catch(const std::bad_alloc& memFail)
-    {
-        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
-    }
+    allocate(new_component);
 }

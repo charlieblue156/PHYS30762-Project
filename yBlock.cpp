@@ -20,62 +20,96 @@ void activate_y_block(yBlock &y_block, double omega)
             y_block.activate_x_block(*y_element_ptr, omega);
         }
     }
-    y_block.set_z_complex();
+    try
+    {
+        y_block.set_z_complex();
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<'\n';
+    }
 }
 void yBlock::set_z_complex()
 {
-    try
+
+    if(y_elements.empty())
     {
-        if(y_elements.empty())
+        throw std::invalid_argument(this->get_name()+" has no elements.");
+    }
+    if(y_elements.size()==1)
+    {
+        for(const auto &x_ptr : y_elements) 
         {
-            throw std::invalid_argument(this->get_name()+" has no elements.");
-        }
-        if(y_elements.size()==1)
-        {
-            for(const auto &x_ptr : y_elements) 
-            {
-                z_complex=(x_ptr->get_z_complex());
-            }
-        }
-        else
-        {
-            std::complex<double> z_reciprocal_sum;
-            for(const auto &x_ptr : y_elements) 
-            {
-                z_reciprocal_sum+=1.0/(x_ptr->get_z_complex());
-            }
-            z_complex=(1.0/z_reciprocal_sum);
+            z_complex=(x_ptr->get_z_complex());
         }
     }
-    catch(const std::exception& e)
+    else
     {
-        std::cerr << e.what() << '\n';
+        std::complex<double> z_reciprocal_sum;
+        for(const auto &x_ptr : y_elements) 
+        {
+            z_reciprocal_sum+=1.0/(x_ptr->get_z_complex());
+        }
+        z_complex=(1.0/z_reciprocal_sum);
     }
 }
-void yBlock::alloc_validation(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
+
+
+void yBlock::allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr)
 {
     try
     {
-        y_elements=y_elements_prmtr;
+        validate_y_element(y_element_prmtr);
+        y_elements.push_back(y_element_prmtr);
     }
     catch(std::bad_alloc &memFail)
     {
         std::cerr<<"Memory allocation failed for "<<name_prmtr<<"."<<std::endl;
     }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<std::endl;
+    }
 }
-yBlock::yBlock(const std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr) : xBlock(name_prmtr)
+
+void yBlock::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
-    alloc_validation(name_prmtr, std::move(y_elements_prmtr));
+    try
+    {
+        for(const auto &y_element_ptr: y_elements_prmtr) 
+        {
+            validate_y_element(y_element_ptr);
+            y_elements.push_back(y_element_ptr);
+        }
+    }
+    catch(std::bad_alloc &memFail)
+    {
+        std::cerr<<"Memory allocation failed for "<<name_prmtr<<"."<<std::endl;
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr<<e.what()<<std::endl;
+    }
 }
+void yBlock::validate_y_element(std::shared_ptr<xBlock> y_element_ptr)
+{
+    if(!y_element_ptr) 
+    {
+        throw std::invalid_argument("Null pointer passed to "+name+".");
+    }
+}
+
+
 yBlock::yBlock(const yBlock&original) : xBlock(original)
 {
-    std::cout<<"Copy constructor for"<<name<<" called."<<std::endl;
-    alloc_validation(original.name, original.y_elements);
+    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
+    y_elements.clear();
+    allocate(original.name, original.y_elements);
 }
 yBlock::yBlock(yBlock &&temp) : xBlock(std::move(temp))
 {
     std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
-    alloc_validation(name, temp.y_elements);
+    allocate(temp.name, temp.y_elements);
 }
 yBlock &yBlock::operator=(const yBlock &other)
 {
@@ -84,7 +118,7 @@ yBlock &yBlock::operator=(const yBlock &other)
     {
         xBlock::operator=(other);
         y_elements.clear();
-        alloc_validation(other.name, other.y_elements);
+        allocate(other.name, other.y_elements);
     }
     return *this;
    
@@ -95,7 +129,7 @@ yBlock &yBlock::operator=(yBlock &&temp)
     if(this!=&temp)
     {
         xBlock::operator=(std::move(temp));
-        alloc_validation(name, temp.y_elements);
+        allocate(name, temp.y_elements);
     }
     return *this;
 }
@@ -110,16 +144,18 @@ void yBlock::print_yelements()
         }
     }
 }
-void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> y_element_ptr)
+void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element_ptr)
 {
-    try
+    if(!y_element_ptr) 
     {
-        y_elements.push_back(y_element_ptr);
+        std::cerr<<"Null pointer passed to add_y_element."<< std::endl;
+        return;
     }
-    catch(const std::bad_alloc& memFail)
+    else
     {
-        std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
+        allocate(name, y_element_ptr);
     }
+    
 }
 void yBlock::remove_y_element(const std::string name)
 {
@@ -153,21 +189,19 @@ void yBlock::remove_y_element(const std::string name)
     }
 
 }
-void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
+void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr)
 {
-    try
+    for(const auto &y_element_ptr: y_elements_prmtr) 
     {
-        for(const auto &y_element_ptr : y_elements_prmtr) 
+        if(!y_element_ptr) 
         {
-            if(y_element_ptr) 
-            {
-                y_elements.push_back(y_element_ptr);
-            }
+            std::cerr<<"Null pointer passed to add_y_element."<< std::endl;
+            return;
         }
-    }
-    catch(const std::bad_alloc& memFail)
-    {
-        std::cerr<<"Memory allocation failed for "<<name<<"."<<std::endl;
+        else
+        {
+            allocate(name, y_element_ptr);
+        }
     }
 }
 void yBlock::clear_y_elements()
