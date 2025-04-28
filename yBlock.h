@@ -7,6 +7,7 @@
 #include<complex>
 #include<memory>
 #include<fstream>
+#include<optional>
 #include "Component.h"
 #include "xBlock.h"
 #include "Circuit.h"
@@ -33,7 +34,7 @@ public:
   std::vector<std::shared_ptr<xBlock>> get_y_elements() const {return y_elements;}
   void print_yelements();
   void add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element_ptr);
-  void remove_y_element(std::string name);
+  void remove_y_element(const std::string removal_name);
   void add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr);
   void clear_y_elements();
   void html_art(std::ofstream &html) override;

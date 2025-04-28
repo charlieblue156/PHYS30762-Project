@@ -22,23 +22,26 @@ void activate_component(Component &component, double omega)
     catch(const std::bad_optional_access& e)
     {
         std::cerr<<"Z complex's cannot be set for empty values."<<std::endl;
+        throw componentFailure("r1", "Removing invalid component: "+component.get_name()+".");
     }
 }
 
-Component::Component(const std::string name_prmtr, const double value_prmtr) : xBlock(name_prmtr)
+Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : xBlock(name_prmtr)
 {
     std::cout<<"Parameterised constructor for "<<name_prmtr<<" called."<<std::endl;
-    
-    value_validation(value_prmtr);
-    value=value_prmtr;
-}
-void Component::value_validation(const double value_prmtr)
-{
-    if(value_prmtr<=0.0)
+    name=name_prmtr;
+    if(value_prmtr.value()>0)
     {
-        throw std::invalid_argument("Fail. Value must be greater than 0.");
+        value=value_prmtr;
+    }
+    else
+    {
+        value=std::nullopt;
     }
 }
+
+
+
 
 Component &Component::operator=(Component &&temp)
 {
@@ -62,27 +65,26 @@ Component &Component::operator=(const Component &other)
 void Component::set_value(double value_input)
 {
     std::cout<<"Setting "<<name<<" to "<<value_input<<"."<<std::endl;
-    try
+    if(value_input<=0)
     {
-        value_validation(value_input);
+        std::cerr<<"Value cannot be negative or zero, setting to invalid."<<std::endl;
+        value=std::nullopt;
+    }
+    else
+    {
         value=value_input;
     }
-    catch(const std::invalid_argument& e)
-    {
-        std::cerr<< e.what()<<'\n'<< std::endl;
-
-    }
-
 }
 
 
 
 
-void Resistor::set_z_complex(double value_input, double omega_input)
+void Resistor::set_z_complex(const double value_input, const double omega_input)
 {
-    
     z_complex=std::complex<double>(value_input, 0);
 }
+
+
 
 
 
@@ -148,10 +150,12 @@ void Resistor::html_art(std::ofstream &html)
     html<<"<div class=\"vline\"></div>";
 }
 
-void Capacitor::set_z_complex(double value_input, double omega_input)
+void Capacitor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(0, -1/(omega_input*value_input));
 }
+
+
 
 Capacitor::Capacitor(const Capacitor&original) : Component(original)
 {
@@ -215,10 +219,11 @@ void Capacitor::html_art(std::ofstream &html)
     html<<"<div class=\"vline\"></div>";
 }
 
-void Inductor::set_z_complex(double value_input, double omega_input)
+void Inductor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(0, omega_input*value_input);
 }
+
 
 Inductor::Inductor(const Inductor&original) : Component(original)
 {

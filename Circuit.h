@@ -5,6 +5,7 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<optional>
 #include "Component.h"
 #include "xBlock.h"
 #include "yBlock.h"

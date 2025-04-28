@@ -11,6 +11,8 @@
 #include "yBlock.h"
 #include "Circuit.h"
 
+
+
 void Circuit::set_z_complex()
 {
     for(const auto& circuit_elements_ptr : circuit_elements) 
@@ -65,6 +67,8 @@ void Circuit::validate_circuit_element(std::shared_ptr<xBlock> circuit_element_p
         throw std::invalid_argument("Null pointer passed to"+name+".");
     }
 }
+
+
 Circuit::Circuit(const Circuit&original) : xBlock{original}, omega{original.omega}
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
@@ -99,6 +103,7 @@ Circuit &Circuit::operator=(Circuit &&temp)
     }
     return *this;
 }
+
 void Circuit::activate_circuit()
 {
     std::cout<<'\n'<<"Activating "<<this->get_name()<<"."<<std::endl;
@@ -106,7 +111,15 @@ void Circuit::activate_circuit()
     {
         if(circuit_element_ptr)
         {
-                this->activate_x_block(*circuit_element_ptr, omega);
+          try
+          {
+            this->activate_x_block(*circuit_element_ptr, omega);
+          }
+          catch(const componentFailure &e)
+          {
+            std::cerr<<e.what()<<std::endl;
+            this->remove_circuit_element(e.get_component_name());
+          }
         }
     }
     this->set_z_complex();
@@ -141,38 +154,31 @@ void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> &&ci
 {
     allocate(name, circuit_element_ptr);
 }
-void Circuit::remove_circuit_element(std::string name)
+void Circuit::remove_circuit_element(std::string removal_name)
 {
-    auto iterator = std::find_if(circuit_elements.begin(), circuit_elements.end(), [&name](const std::shared_ptr<xBlock> &circuit_element_ptr) 
-    {
-        return circuit_element_ptr && circuit_element_ptr->get_name() == name; 
-    });
-
-    if(iterator!=circuit_elements.end()) 
-    {
-        circuit_elements.erase(iterator);
-        std::cout << name << " removed from " << this->get_name() << "." << std::endl;
-        return;
-    } 
-    else 
-    {
-
-        for(const auto &element_ptr : circuit_elements)
-        {
-            if(!element_ptr) continue;
-            if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
-            {
-                circuit_ptr->remove_circuit_element(name);
-            }
-            else if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get())) 
-            {
-                y_block_ptr->remove_y_element(name);
-            }
+    // First: remove all direct children matching name
+    auto it = circuit_elements.begin();
+    while (it != circuit_elements.end()) {
+        if (*it && (*it)->get_name() == removal_name) {
+            it = circuit_elements.erase(it);
+            std::cout << removal_name << " removed from " << this->get_name() << "." << std::endl;
+        } else {
+            ++it;
         }
-        std::cout << name << " not found in " << this->get_name() << "." << std::endl;
     }
 
+    // Then: recurse into each remaining child
+    for (auto& element_ptr : circuit_elements) {
+        if (!element_ptr) continue;
+        if (auto circuit_ptr = dynamic_cast<Circuit*>(element_ptr.get())) {
+            circuit_ptr->remove_circuit_element(removal_name);
+        }
+        else if (auto y_block_ptr = dynamic_cast<yBlock*>(element_ptr.get())) {
+            y_block_ptr->remove_y_element(removal_name);
+        }
+    }
 }
+
 void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr)
 {
   allocate(name, circuit_elements_prmtr);

@@ -11,20 +11,6 @@
 #include "yBlock.h"
 #include "Circuit.h"
 
-template<typename T> T parameterised_constructor(const std::string name_prmtr, const double value_prmtr)
-{
-    try
-    {
-        T temp(name_prmtr, value_prmtr);
-        return temp;
-    }
-    catch(const std::invalid_argument& e)
-    {
-        std::cerr<< e.what()<<" "<<name_prmtr <<" set to default value.\n" << std::endl;
-        return T(name_prmtr, 0.0);
-    }
-}
-
 class Circuit;
 
 class Component : public xBlock
@@ -32,10 +18,9 @@ class Component : public xBlock
 friend void activate_component(Component &component, double omega);
 protected:
   std::optional<double> value;
-  virtual void set_z_complex(double value_input, double omega_input)=0;
-  Component(const std::string name_prmtr, const double value_prmtr);
+  virtual void set_z_complex(const double value_input, const double omega_input)=0;
+  Component(const std::string name_prmtr, const std::optional<double> value_prmtr);
   Component(){}
-  void value_validation(const double value_input);
 public:
   virtual ~Component(){}
   Component(Component &&temp) : xBlock(std::move(temp)), value(std::move(temp.value)){}
@@ -48,12 +33,13 @@ public:
 
 class Resistor:public Component
 {
-  friend Resistor parameterised_constructor<Resistor>(const std::string name_prmtr, const double value_prmtr);
+
 private:
-  void set_z_complex(double value_input, double omega_input) override;
-  Resistor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
+  void set_z_complex(const double value_input, const double omega_input) override;
+
 public:
   Resistor(){}
+  Resistor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Resistor(const Resistor&original);
   Resistor(Resistor &&temp);
   ~Resistor(){}
@@ -65,12 +51,13 @@ public:
 
 class Capacitor:public Component
 {
-  friend Capacitor parameterised_constructor<Capacitor>(const std::string name_prmtr, const double value_prmtr);
+
 private:
-  void set_z_complex(double value_input, double omega_input) override;
-  Capacitor(const std::string name_prmtr, double value_prmtr) : Component(name_prmtr, value_prmtr){}
+  void set_z_complex(const double value_input, const double omega_input) override;
+
 public:
   Capacitor(){}
+  Capacitor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Capacitor(const Capacitor&original);
   Capacitor(Capacitor &&temp);
   ~Capacitor(){}
@@ -82,12 +69,12 @@ public:
 
 class Inductor:public Component
 {
-  friend Inductor parameterised_constructor<Inductor>(const std::string name_prmtr, const double value_prmtr);
 private:
-  void set_z_complex(double value_input, double omega_input) override;
-  Inductor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
+  void set_z_complex(const double value_input, const double omega_input) override;
+
 public:
   Inductor(){}
+  Inductor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
   Inductor(const Inductor&original);
   Inductor(Inductor &&temp);
   ~Inductor(){}
@@ -97,4 +84,11 @@ public:
   void html_art(std::ofstream &html) override;
 };
 
+class componentFailure : public std::invalid_argument
+{
+public:
+  std::string component_name;
+  componentFailure(const std::string &name, const std::string &message) : component_name(name), std::invalid_argument(message) {}
+  const std::string &get_component_name() const { return component_name; }
+};
 #endif
