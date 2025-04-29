@@ -1,3 +1,11 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+Component class header file, which contains the Component class and its derived classes: Resistor, Capacitor, and Inductor.
+Component is an abstract class that inherits from xBlock. It contains a pure virtual function set_z_complex, which is implemented in the derived classes.
+The derived classes also implement the print_xblock_data and html_art functions, which are used to print the component data and generate HTML art for the components, respectively.
+The class contains a unique error handling class componentFailure, which is used to handle errors related to components, and their removal from circuits.
+*/
+
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
@@ -33,10 +41,8 @@ public:
 
 class Resistor:public Component
 {
-
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-
 public:
   Resistor(){}
   Resistor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
@@ -54,7 +60,6 @@ class Capacitor:public Component
 
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-
 public:
   Capacitor(){}
   Capacitor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
@@ -71,7 +76,6 @@ class Inductor:public Component
 {
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-
 public:
   Inductor(){}
   Inductor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}

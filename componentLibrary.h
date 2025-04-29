@@ -1,3 +1,11 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+componentLibrary class header file. This class contains a library of components, which are stored in an unordered map. Only components which have 
+valid and greater than zero values may be added. This gives a seal of approval for components when added to a circuit. Components may be accessed
+directly by name, for creating shared ptrs to them. No duplicate names or values are allowed in the library. The class contains functions to add, 
+remove, and clear components from the library, as well as to print the component library.
+*/
+
 #ifndef COMPONENTLIBRARY_H
 #define COMPONENTLIBRARY_H
 
@@ -29,6 +37,7 @@ public:
   void component_library_entry(std::shared_ptr<Component> &&new_component);
   std::string get_name() const {return name;}
   void set_name(std::string name_input) {name=name_input;}
+  void print_component_library() const;
 };
 
 #endif

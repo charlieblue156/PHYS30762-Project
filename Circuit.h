@@ -1,3 +1,11 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+Circuit class header file. The class inherits from xBlock and contains a vector of shared pointers to xBlock objects. Once circuit elements have 
+been added, removed or moved using the functions. Then the circuit is activated by calling the activate_circuit function. 
+This sets the complex impedance of the circuit. Any invalid components are removed during this process. The circuit is generated and displayed via
+a html file.
+*/
+
 #ifndef CIRCUIT_H
 #define CIRCUIT_H
 

@@ -1,5 +1,10 @@
-#include <iostream> 
-#include <string>   
+/*
+Charlie Taylor - 29/04/25 - 11072486
+componentLibrary source file.
+*/
+
+#include<iostream> 
+#include<string>   
 #include<unordered_map>
 #include<stdexcept>
 #include<sstream>
@@ -46,11 +51,8 @@ void componentLibrary::duplication_validation(std::shared_ptr<Component> &new_co
             }
         }
     }
-   
     std::cout<<"Duplication check success."<<std::endl;
-
 }
-
 void componentLibrary::allocate(std::shared_ptr<Component> &new_component)
 {
     try
@@ -72,9 +74,6 @@ void componentLibrary::allocate(std::shared_ptr<Component> &new_component)
         std::cerr<<"Value for "<<new_component->get_name()<<" invalid."<<std::endl;
     }
 }
-
-
-
 componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
 {
     for(const auto &[name, component_ptr] : original.component_library) 
@@ -103,4 +102,15 @@ std::shared_ptr<Component> componentLibrary::get_component(std::string library_i
 void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
 {
     allocate(new_component);
+}
+void componentLibrary::print_component_library() const
+{
+  std::cout<<'\n'<<"Printing component library "<<name<<":"<<std::endl;
+  for(const auto& [name, component] : component_library) 
+  {
+    if(component)
+    { 
+      component->print_xblock_data();
+    }
+  }
 }

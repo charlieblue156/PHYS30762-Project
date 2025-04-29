@@ -1,3 +1,8 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+yBlock class source file.
+*/
+
 #include<iostream>
 #include<string>
 #include<vector>
@@ -5,7 +10,6 @@
 #include<complex>
 #include<fstream>
 #include<algorithm>
-
 #include "Component.h"
 #include "xBlock.h"
 #include "yBlock.h"
@@ -60,8 +64,6 @@ void yBlock::set_z_complex()
         z_complex=(1.0/z_reciprocal_sum);
     }
 }
-
-
 void yBlock::allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr)
 {
     try
@@ -78,7 +80,6 @@ void yBlock::allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_
         std::cerr<<e.what()<<std::endl;
     }
 }
-
 void yBlock::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
 {
     try
@@ -105,7 +106,6 @@ void yBlock::validate_y_element(std::shared_ptr<xBlock> y_element_ptr)
         throw std::invalid_argument("Null pointer passed to "+name+".");
     }
 }
-
 yBlock::yBlock(const yBlock&original) : xBlock(original)
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
@@ -163,39 +163,39 @@ void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element
     }
     
 }
-
 void yBlock::remove_y_element(const std::string removal_name)
 {
-    // 1. Remove matching elements
-    auto it = y_elements.begin();
+    auto iterator=y_elements.begin();
     bool removed = false;
-    while (it != y_elements.end()) {
-        if (*it && (*it)->get_name() == removal_name) {
-            it = y_elements.erase(it);
-            std::cout << removal_name << " removed from " << this->get_name() << "." << std::endl;
+    while(iterator!=y_elements.end()) 
+    {
+        if(*iterator&&(*iterator)->get_name()==removal_name) 
+        {
+            iterator=y_elements.erase(iterator);
+            std::cout<<removal_name<<" removed from "<< this->get_name()<<"."<<std::endl;
             removed = true;
-        } else {
-            ++it;
+        } else 
+        {
+            ++iterator;
         }
     }
-
-    // 2. Recurse into existing children
-    for (auto& element_ptr : y_elements) {
-        if (!element_ptr) continue;
-        if (auto circuit_ptr = dynamic_cast<Circuit*>(element_ptr.get())) {
+    for(auto& element_ptr : y_elements)
+    {
+        if(!element_ptr) continue;
+        if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
+        {
             circuit_ptr->remove_circuit_element(removal_name);
         }
-        else if (auto y_block_ptr = dynamic_cast<yBlock*>(element_ptr.get())) {
+        else if(auto y_block_ptr = dynamic_cast<yBlock*>(element_ptr.get())) 
+        {
             y_block_ptr->remove_y_element(removal_name);
         }
     }
-
-    if (!removed) {
-        std::cout << removal_name << " not found in " << this->get_name() << "." << std::endl;
+    if(!removed)
+    {
+        std::cout<<removal_name<<" not found in "<<this->get_name()<<"."<< std::endl;
     }
 }
-
-
 void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr)
 {
     for(const auto &y_element_ptr: y_elements_prmtr) 

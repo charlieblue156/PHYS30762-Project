@@ -1,3 +1,8 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+Component source file.
+*/
+
 #include"Component.h"
 #include"xBlock.h"
 #include"yBlock.h"
@@ -9,9 +14,6 @@
 #include<vector>
 #include<memory>
 #include<complex>
-
-
-
 
 void activate_component(Component &component, double omega)
 {
@@ -25,7 +27,6 @@ void activate_component(Component &component, double omega)
         throw componentFailure("r1", "Removing invalid component: "+component.get_name()+".");
     }
 }
-
 Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : xBlock(name_prmtr)
 {
     std::cout<<"Parameterised constructor for "<<name_prmtr<<" called."<<std::endl;
@@ -39,10 +40,6 @@ Component::Component(const std::string name_prmtr, const std::optional<double> v
         value=std::nullopt;
     }
 }
-
-
-
-
 Component &Component::operator=(Component &&temp)
 {
     if(this!=&temp)
@@ -61,7 +58,6 @@ Component &Component::operator=(const Component &other)
     }
     return *this;
 }
-
 void Component::set_value(double value_input)
 {
     std::cout<<"Setting "<<name<<" to "<<value_input<<"."<<std::endl;
@@ -76,18 +72,10 @@ void Component::set_value(double value_input)
     }
 }
 
-
-
-
 void Resistor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(value_input, 0);
 }
-
-
-
-
-
 Resistor::Resistor(const Resistor&original) : Component(original)
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
@@ -122,7 +110,7 @@ void Resistor::print_xblock_data()
     std::cout<<"Resistor: ";
     if(this->get_value().has_value())
     {
-        std::cout<<this->get_value().value()<<" [Ω]."<<std::endl;
+        std::cout<<this->get_value().value()<<" [Ohm]."<<std::endl;
     }
     else
     {
@@ -154,9 +142,6 @@ void Capacitor::set_z_complex(const double value_input, const double omega_input
 {
     z_complex=std::complex<double>(0, -1/(omega_input*value_input));
 }
-
-
-
 Capacitor::Capacitor(const Capacitor&original) : Component(original)
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
@@ -223,8 +208,6 @@ void Inductor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(0, omega_input*value_input);
 }
-
-
 Inductor::Inductor(const Inductor&original) : Component(original)
 {
     std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;

@@ -1,3 +1,8 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+xBlock class source file.
+*/
+
 #include<iostream>
 #include<string>
 #include<vector>
@@ -86,8 +91,8 @@ void xBlock::activate_x_block(xBlock &x_block, double omega)
 void xBlock::print_xblock_data()
 {
     std::cout<<'\n'<<"Printing data for "<<this->get_name()<<"."<<std::endl;
-    std::cout<<"Complex impedance: "<<this->get_z_real()<<(this->get_z_imaginary()<0?" ":" +")<<this->get_z_imaginary()<<"i [Ω]."<<std::endl;
-    std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [Ω]."<<std::endl;
+    std::cout<<"Complex impedance: "<<this->get_z_real()<<(this->get_z_imaginary()<0?" ":" +")<<this->get_z_imaginary()<<"i [Ohm]."<<std::endl;
+    std::cout<<"Magnitude: "<<this->get_z_magnitude()<<" [Ohm]."<<std::endl;
     std::cout<<"Phase: "<<this->get_z_phase()<<" [rad]."<<std::endl;
 }
 

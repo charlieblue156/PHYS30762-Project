@@ -1,3 +1,11 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+yBlock class header file. This class inherits from xBlock and contains a vector of shared pointers to xBlock objects.
+Its function is to serve as the parallel branches within a circuit. Components, or nested yBlocks and circuits, contained in the vector
+have their impedance calculated in parallel, and the yBlock's impedance is set to the equivalent impedance of the parallel branches.
+The class contains functions to add, remove, and clear yBlock elements, as well as to print the yBlock elements and generate HTML art for the yBlock.
+*/
+
 #ifndef YBLOCK_H
 #define YBLOCK_H
 
@@ -23,6 +31,7 @@ private:
   void allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr);
   void allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr);
   void validate_y_element(std::shared_ptr<xBlock> y_element_ptr);
+  void activate_y_block(yBlock &y_block, double omega);
 public:
   yBlock(){}
   yBlock(const std::string name_prmtr) : xBlock(name_prmtr){}

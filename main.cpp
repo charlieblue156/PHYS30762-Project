@@ -1,3 +1,8 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+Main class.
+*/
+
 #include<iostream>
 #include<string>
 #include<vector>
@@ -20,13 +25,13 @@ int main()
     component_library.component_library_entry(std::make_shared<Inductor>("i1", 12.6));
 
     //Tests the name and type value exclusivity of the component library
-    //component_library.component_library_entry(std::make_shared<Resistor>("r1", 3.0));
+    component_library.component_library_entry(std::make_shared<Resistor>("r1", 3.0));
     component_library.component_library_entry(std::make_shared<Capacitor>("c2", 10.0));
 
 
     //yBlock creation
     yBlock y1("y1");
-    //y1.add_y_element("r1", std::move(component_library.get_component("r1")));
+    y1.add_y_element("r1", std::move(component_library.get_component("r1")));
     y1.add_y_element("c1", std::move(component_library.get_component("c1")));
     y1.add_y_element("i1", std::move(component_library.get_component("i1")));
     y1.add_y_element("r1", std::make_shared<Resistor>("r1", -1.0));
@@ -41,7 +46,7 @@ int main()
     Circuit c1("c1", 50);
     c1.add_circuit_element("y1", std::move(std::make_shared<yBlock>(y1)));
     c1.add_circuit_element("i1", std::move(component_library.get_component("i1")));
-    //c1.add_circuit_element("r1", std::move(component_library.get_component("r1")));
+    c1.add_circuit_element("r1", std::move(component_library.get_component("r1")));
     c1.add_circuit_element("r1", std::make_shared<Resistor>("r1", -1.0));
 
 
@@ -57,8 +62,8 @@ int main()
     c1.activate_circuit(); 
     c1.generate_circuit();
 
+
     return 0;
 }
 
-// g++ "Component.h" "Component.cpp" "xBlock.h" "xBlock.cpp" "yBlock.h" "yBlock.cpp" "Circuit.h" "Circuit.cpp" "main.cpp" "componentLibrary.cpp" "componentLibrary.h" -o Project.exe
 

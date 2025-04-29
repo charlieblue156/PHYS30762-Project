@@ -1,3 +1,10 @@
+/*
+Charlie Taylor - 29/04/25 - 11072486
+xBlock class header file, this is the abstract base class for components, circuits and yBlocks. It contains the pure virtual function set_z_complex,
+which is implemented in the derived classes. It contains definitions of functions common to all derived classes, such as the find element algorithm,
+and print data.
+*/
+
 #ifndef XBLOCK_H
 #define XBLOCK_H
 
@@ -11,6 +18,8 @@ class Circuit;
 
 class xBlock
 {
+  friend class yBlock;
+  friend class Component;
 protected:
   std::complex<double> z_complex;
   std::string name{""};
