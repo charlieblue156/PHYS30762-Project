@@ -31,6 +31,7 @@ private:
   void allocate(std::string name_prmtr, std::shared_ptr<xBlock> circuit_element_prmtr);
   void allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr);
   void validate_circuit_element(std::shared_ptr<xBlock> circuit_element_ptr);
+  void generate_circuit(); //Generates the HTML file for the circuit
 public:
   Circuit(){}
   Circuit(const std::string name_prmtr, double omega_prmtr) : xBlock(name_prmtr), omega{omega_prmtr}{}
@@ -50,7 +51,6 @@ public:
   void add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr);
   void clear_circuit_elements();
   void html_art(std::ofstream &html) override;
-  void generate_circuit(); //Generates the HTML file for the circuit
 };
 
 

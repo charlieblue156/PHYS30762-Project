@@ -23,7 +23,7 @@ int main()
     component_library.component_library_entry("Resistor", "r1", -5.0);
     component_library.component_library_entry("Capacitor", "c1", 10.0);
     component_library.component_library_entry("Inductor", "i1", 20.0);
-    component_library.get_component("i1")->set_value(-5.0);
+    component_library.get_component("i1")->set_value(75.0);
     component_library.print_component_library();
 
     //Tests the name and type value exclusivity of the component library
@@ -62,7 +62,7 @@ int main()
     c1.add_circuit_element("y2", std::move(std::make_shared<yBlock>(y2)));
 
     c1.activate_circuit(); 
-    c1.generate_circuit();
+
 
 
     return 0;

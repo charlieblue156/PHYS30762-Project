@@ -15,18 +15,18 @@ yBlock class source file.
 #include "yBlock.h"
 #include "Circuit.h"
 
-void yBlock::activate_y_block(yBlock &y_block, double omega)
+void yBlock::activate_y_block(double omega)
 {
-    for(const auto &y_element_ptr : y_block.y_elements) 
+    for(const auto &y_element_ptr : this->y_elements) 
     {
         if(y_element_ptr)
         { 
-            y_block.activate_x_block(*y_element_ptr, omega);
+            this->activate_x_block(*y_element_ptr, omega);
         }
     }
     try
     {
-        y_block.set_z_complex();
+        this->set_z_complex();
     }
     catch(const std::invalid_argument& e)
     {

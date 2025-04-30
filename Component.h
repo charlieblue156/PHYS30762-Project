@@ -30,7 +30,7 @@ protected:
   virtual void set_z_complex(const double value_input, const double omega_input)=0;
   Component(const std::string name_prmtr, const std::optional<double> value_prmtr);
   Component(){}
-  void activate_component(Component &component, double omega);
+  void activate_component(double omega);
 public:
   virtual ~Component(){}
   Component(Component &&temp) : xBlock(std::move(temp)), value(std::move(temp.value)){}

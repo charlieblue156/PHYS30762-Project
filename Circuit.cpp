@@ -116,6 +116,7 @@ void Circuit::activate_circuit()
         }
     }
     this->set_z_complex();
+    this->generate_circuit();
 }
 void Circuit::find_element(const std::string &name)
 {

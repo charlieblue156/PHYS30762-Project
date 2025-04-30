@@ -15,17 +15,18 @@ Component source file.
 #include<memory>
 #include<complex>
 
-void Component::activate_component(Component &component, double omega)
+
+void Component::activate_component(double omega)
 {
     
     try
     {
-        component.set_z_complex(component.get_value().value(), omega);
+        this->set_z_complex(value.value(), omega);
     }
     catch(const std::bad_optional_access& e)
     {
-        std::cerr<<"Z complex for "<<component.get_name()<<" cannot be set due to an invalid value."<<std::endl;
-        throw componentFailure(component.get_name(), "Removing invalid component: "+component.get_name()+".");
+        std::cerr<<"Z complex for "<<name<<" cannot be set due to an invalid value."<<std::endl;
+        throw componentFailure(name, "Removing invalid component: "+name+".");
     }
 }
 Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : xBlock(name_prmtr)

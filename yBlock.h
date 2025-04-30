@@ -31,7 +31,7 @@ private:
   void allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr);
   void allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr);
   void validate_y_element(std::shared_ptr<xBlock> y_element_ptr);
-  void activate_y_block(yBlock &y_block, double omega);
+  void activate_y_block(double omega);
 public:
   yBlock(){}
   yBlock(const std::string name_prmtr) : xBlock(name_prmtr){}

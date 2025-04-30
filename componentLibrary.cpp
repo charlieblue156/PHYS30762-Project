@@ -64,12 +64,6 @@ void componentLibrary::allocate(std::shared_ptr<Component> new_component)
         duplication_validation(new_component);
         component_library[new_component->get_name()]=new_component;
         std::cout<<new_component->get_name()<<" added to "<<name<<".\n"<<std::endl;
-                std::cout << "Current component library: " << std::endl;
-        for (const auto& [name, component] : component_library)
-        {
-            std::cout << "Component name: " << name 
-                      << ", Value: " << (component->get_value().has_value() ? std::to_string(component->get_value().value()) : "Invalid") << std::endl;
-        }
     }
     catch(const std::bad_alloc& memFail)
     {
