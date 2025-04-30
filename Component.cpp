@@ -15,16 +15,17 @@ Component source file.
 #include<memory>
 #include<complex>
 
-void activate_component(Component &component, double omega)
+void Component::activate_component(Component &component, double omega)
 {
+    
     try
     {
         component.set_z_complex(component.get_value().value(), omega);
     }
     catch(const std::bad_optional_access& e)
     {
-        std::cerr<<"Z complex's cannot be set for empty values."<<std::endl;
-        throw componentFailure("r1", "Removing invalid component: "+component.get_name()+".");
+        std::cerr<<"Z complex for "<<component.get_name()<<" cannot be set due to an invalid value."<<std::endl;
+        throw componentFailure(component.get_name(), "Removing invalid component: "+component.get_name()+".");
     }
 }
 Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : xBlock(name_prmtr)
@@ -76,17 +77,8 @@ void Resistor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(value_input, 0);
 }
-Resistor::Resistor(const Resistor&original) : Component(original)
-{
-    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
-}
-Resistor::Resistor(Resistor &&temp) : Component(std::move(temp))
-{
-    std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
-}
 Resistor &Resistor::operator=(Resistor &&temp)
 {
-    std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&temp)
     {
         Component::operator=(std::move(temp));
@@ -96,7 +88,6 @@ Resistor &Resistor::operator=(Resistor &&temp)
 }
 Resistor &Resistor::operator=(const Resistor &other)
 {
-    std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&other)
     {
         Component::operator=(other);
@@ -142,17 +133,8 @@ void Capacitor::set_z_complex(const double value_input, const double omega_input
 {
     z_complex=std::complex<double>(0, -1/(omega_input*value_input));
 }
-Capacitor::Capacitor(const Capacitor&original) : Component(original)
-{
-    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
-}
-Capacitor::Capacitor(Capacitor &&temp) : Component(std::move(temp))
-{
-    std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
-}
 Capacitor &Capacitor::operator=(Capacitor &&temp)
 {
-    std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&temp)
     {
         Component::operator=(std::move(temp));
@@ -162,7 +144,6 @@ Capacitor &Capacitor::operator=(Capacitor &&temp)
 }
 Capacitor &Capacitor::operator=(const Capacitor &other)
 {
-    std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&other)
     {
         Component::operator=(other);
@@ -208,17 +189,8 @@ void Inductor::set_z_complex(const double value_input, const double omega_input)
 {
     z_complex=std::complex<double>(0, omega_input*value_input);
 }
-Inductor::Inductor(const Inductor&original) : Component(original)
-{
-    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
-}
-Inductor::Inductor(Inductor &&temp) : Component(std::move(temp))
-{
-    std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
-}
 Inductor &Inductor::operator=(Inductor &&temp)
 {
-    std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&temp)
     {
         Component::operator=(std::move(temp));
@@ -228,7 +200,6 @@ Inductor &Inductor::operator=(Inductor &&temp)
 }
 Inductor &Inductor::operator=(const Inductor &other)
 {
-    std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&other)
     {
         Component::operator=(other);

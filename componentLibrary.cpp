@@ -14,56 +14,66 @@ componentLibrary source file.
 #include "Component.h"
 #include "componentLibrary.h"
 
-void componentLibrary::duplication_validation(std::shared_ptr<Component> &new_component)
+void componentLibrary::duplication_validation(std::shared_ptr<Component> new_component)
 {
     if(component_library.empty())
     {
         if(!new_component->get_value().has_value())
         {
-            throw std::invalid_argument("Value for "+new_component->get_name()+" invalid.");
+            throw std::invalid_argument("Value for "+new_component->get_name()+" invalid.\n");
         }
     }
     else
     {
         for(const auto& [existing_name, existing_component] : component_library)
         {
-            if(existing_name==new_component->get_name())
+            try
             {
-                throw std::invalid_argument("A component with name "+new_component->get_name()+" already exists in "+name+". Please choose a new name.");
-                
+                if(existing_name==new_component->get_name())
+                {
+                    throw std::invalid_argument("A component with name "+new_component->get_name()+" already exists in "+name+". Please choose a new name.\n");
+                    
+                }
+                else if((existing_component->get_value().value()==new_component->get_value().value())&&(typeid(*existing_component)==typeid(*new_component)))
+                {
+                    std::ostringstream ss;
+                    ss<<new_component->get_value().value();
+                    if(typeid(*existing_component)==typeid(Resistor)) 
+                    {
+                        throw std::invalid_argument("There exists a resistor in "+name+" of resistance "+ss.str()+"[\u2126]. Select a new resiatance.\n");
+                    }
+                    else if(typeid(*existing_component)==typeid(Capacitor)) 
+                    {
+                        throw std::invalid_argument("There exists a capacitor in "+name+" of capacitance "+ss.str()+"[F]. Select a new capacitance.\n");
+                    }
+                    else if(typeid(*existing_component)==typeid(Inductor)) 
+                    {
+                        throw std::invalid_argument("There exists an inductor in "+name+" of inductance "+ss.str()+"[H]. Select a new inductance.\n");
+                    }
+                }
             }
-            else if((existing_component->get_value().value()==new_component->get_value().value())&&(typeid(*existing_component)==typeid(*new_component)))
-            {
-                std::ostringstream ss;
-                ss<<new_component->get_value().value();
-                if(typeid(*existing_component)==typeid(Resistor)) 
-                {
-                    throw std::invalid_argument("There exists a resistor in "+name+" of resistance "+ss.str()+"[\u2126]. Select a new resiatance.");
-                }
-                else if(typeid(*existing_component)==typeid(Capacitor)) 
-                {
-                    throw std::invalid_argument("There exists a capacitor in "+name+" of capacitance "+ss.str()+"[F]. Select a new capacitance.");
-                }
-                else if(typeid(*existing_component)==typeid(Inductor)) 
-                {
-                    throw std::invalid_argument("There exists an inductor in "+name+" of inductance "+ss.str()+"[H]. Select a new inductance.");
-                }
-            }
+            catch(std::bad_optional_access &e){}
         }
     }
-    std::cout<<"Duplication check success."<<std::endl;
+    std::cout<<"Duplication check success.\n"<<std::endl;
 }
-void componentLibrary::allocate(std::shared_ptr<Component> &new_component)
+void componentLibrary::allocate(std::shared_ptr<Component> new_component)
 {
     try
     {
         duplication_validation(new_component);
         component_library[new_component->get_name()]=new_component;
-        std::cout<<new_component->get_name()<<" added to "<<name<<"."<<std::endl;
+        std::cout<<new_component->get_name()<<" added to "<<name<<".\n"<<std::endl;
+                std::cout << "Current component library: " << std::endl;
+        for (const auto& [name, component] : component_library)
+        {
+            std::cout << "Component name: " << name 
+                      << ", Value: " << (component->get_value().has_value() ? std::to_string(component->get_value().value()) : "Invalid") << std::endl;
+        }
     }
     catch(const std::bad_alloc& memFail)
     {
-        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<"."<<std::endl;
+        std::cerr<<"Memory allocation failed for "<<new_component->get_name()<<".\n"<<std::endl;
     }
     catch(const std::invalid_argument& e)
     {
@@ -71,7 +81,7 @@ void componentLibrary::allocate(std::shared_ptr<Component> &new_component)
     }
     catch(const std::bad_optional_access& e)
     {
-        std::cerr<<"Value for "<<new_component->get_name()<<" invalid."<<std::endl;
+        std::cerr<<"Value for "<<new_component->get_name()<<" invalid.\n"<<std::endl;
     }
 }
 componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
@@ -90,18 +100,37 @@ std::shared_ptr<Component> componentLibrary::get_component(std::string library_i
     auto iterator=component_library.find(library_index);
     if (iterator!=component_library.end()) 
     {
-        std::cout<<library_index<<" found in "<<name<<"."<<std::endl;
+        std::cout<<library_index<<" found in "<<name<<".\n"<<std::endl;
         return iterator->second;
     } 
     else
     {
-        std::cout<<library_index<<" not found in "<<name<<"."<<std::endl;
+        std::cout<<library_index<<" not found in "<<name<<".\n"<<std::endl;
         return nullptr;
     }
 }
-void componentLibrary::component_library_entry(std::shared_ptr<Component> &&new_component)
+void componentLibrary::component_library_entry(const std::string &type_prmtr, const std::string &name_prmtr, const double value_prmtr)
 {
-    allocate(new_component);
+    if(type_prmtr=="Resistor")
+    {
+        Resistor temp(name_prmtr, value_prmtr);
+        allocate(std::make_shared<Resistor>(temp));
+    }
+    else if(type_prmtr=="Capacitor")
+    {
+        Capacitor temp(name_prmtr, value_prmtr);
+        allocate(std::make_shared<Capacitor>(temp));
+    }
+    else if(type_prmtr=="Inductor")
+    {
+        Inductor temp(name_prmtr, value_prmtr);
+        allocate(std::make_shared<Inductor>(temp));
+    }
+    else
+    {
+        std::cerr<<"Invalid type name, component entry into"<<name<<" failed for "<<name_prmtr<<". set the type name to either \"Resistor\", \"Capacitor\", or \"Inductor\" exactly.\n"<<std::endl;
+    }
+
 }
 void componentLibrary::print_component_library() const
 {

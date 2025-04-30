@@ -24,7 +24,7 @@ class Circuit;
 
 class yBlock : public xBlock
 {
-friend void activate_y_block(yBlock &y_block, double omega);
+  friend class xBlock;
 private:
   std::vector<std::shared_ptr<xBlock>> y_elements;
   void set_z_complex();

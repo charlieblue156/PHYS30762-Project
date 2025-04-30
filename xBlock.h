@@ -14,7 +14,10 @@ and print data.
 #include<memory>
 #include<complex>
 
+
 class Circuit;
+class Component;
+class componentLibrary;
 
 class xBlock
 {

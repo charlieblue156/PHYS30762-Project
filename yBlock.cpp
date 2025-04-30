@@ -10,12 +10,12 @@ yBlock class source file.
 #include<complex>
 #include<fstream>
 #include<algorithm>
-#include "Component.h"
 #include "xBlock.h"
+#include "Component.h"
 #include "yBlock.h"
 #include "Circuit.h"
 
-void activate_y_block(yBlock &y_block, double omega)
+void yBlock::activate_y_block(yBlock &y_block, double omega)
 {
     for(const auto &y_element_ptr : y_block.y_elements) 
     {
@@ -108,18 +108,15 @@ void yBlock::validate_y_element(std::shared_ptr<xBlock> y_element_ptr)
 }
 yBlock::yBlock(const yBlock&original) : xBlock(original)
 {
-    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
     y_elements.clear();
     allocate(original.name, original.y_elements);
 }
 yBlock::yBlock(yBlock &&temp) : xBlock(std::move(temp))
 {
-    std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
     allocate(temp.name, temp.y_elements);
 }
 yBlock &yBlock::operator=(const yBlock &other)
 {
-    std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&other)
     {
         xBlock::operator=(other);
@@ -131,7 +128,6 @@ yBlock &yBlock::operator=(const yBlock &other)
 }
 yBlock &yBlock::operator=(yBlock &&temp)
 {
-    std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&temp)
     {
         xBlock::operator=(std::move(temp));

@@ -22,9 +22,8 @@ class componentLibrary
 private:
   std::unordered_map<std::string, std::shared_ptr<Component>> component_library{};
   std::string name{""};
-  void duplication_validation(std::shared_ptr<Component> &new_component);
-  void allocate(std::shared_ptr<Component> &new_component);
-  void value_validation(std::shared_ptr<Component> &new_component);
+  void duplication_validation(std::shared_ptr<Component> new_component);
+  void allocate(std::shared_ptr<Component> new_component);
 public:
   componentLibrary(){}
   componentLibrary(const std::string name_prmtr, const std::unordered_map<std::string, std::shared_ptr<Component>> &&component_library_prmtr) : name(name_prmtr), component_library(std::move(component_library_prmtr)){}
@@ -34,7 +33,7 @@ public:
   componentLibrary &operator=(const componentLibrary &other);
   componentLibrary &operator=(componentLibrary &&temp);
   std::shared_ptr<Component> get_component(std::string library_index);
-  void component_library_entry(std::shared_ptr<Component> &&new_component);
+  void component_library_entry(const std::string &type_prmtr, const std::string &name_prmtr, const double value_prmtr);
   std::string get_name() const {return name;}
   void set_name(std::string name_input) {name=name_input;}
   void print_component_library() const;

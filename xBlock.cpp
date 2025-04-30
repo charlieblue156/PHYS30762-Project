@@ -10,8 +10,8 @@ xBlock class source file.
 #include<complex>
 #include<cmath>
 #include<algorithm>
-#include "Component.h"
 #include "xBlock.h"
+#include "Component.h"
 #include "yBlock.h"
 #include "Circuit.h"
 
@@ -77,11 +77,11 @@ void xBlock::activate_x_block(xBlock &x_block, double omega)
 {
     if(auto component=dynamic_cast<Component*>(&x_block)) 
     {
-        activate_component(*component, omega);
+        component->activate_component(*component, omega);
     }
     else if(auto y_block=dynamic_cast<yBlock*>(&x_block)) 
     {
-        activate_y_block(*y_block, omega);
+        y_block->activate_y_block(*y_block, omega);
     }
     else if(auto identified_circuit=dynamic_cast<Circuit*>(&x_block)) 
     {

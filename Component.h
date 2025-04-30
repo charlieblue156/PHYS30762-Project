@@ -20,15 +20,17 @@ The class contains a unique error handling class componentFailure, which is used
 #include "Circuit.h"
 
 class Circuit;
+class componentLibrary;
 
 class Component : public xBlock
 {
-friend void activate_component(Component &component, double omega);
+ friend class xBlock;
 protected:
   std::optional<double> value;
   virtual void set_z_complex(const double value_input, const double omega_input)=0;
   Component(const std::string name_prmtr, const std::optional<double> value_prmtr);
   Component(){}
+  void activate_component(Component &component, double omega);
 public:
   virtual ~Component(){}
   Component(Component &&temp) : xBlock(std::move(temp)), value(std::move(temp.value)){}
@@ -41,13 +43,14 @@ public:
 
 class Resistor:public Component
 {
+  friend class componentLibrary;
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-public:
   Resistor(){}
-  Resistor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
-  Resistor(const Resistor&original);
-  Resistor(Resistor &&temp);
+  Resistor(const std::string name_prmtr, const std::optional<double> value_prmtr) : Component(name_prmtr, value_prmtr){}
+public:
+  Resistor(const Resistor&original): Component(original){}
+  Resistor(Resistor &&temp): Component(std::move(temp)){}
   ~Resistor(){}
   Resistor &operator=(Resistor &&temp);
   Resistor &operator=(const Resistor &other);
@@ -57,14 +60,14 @@ public:
 
 class Capacitor:public Component
 {
-
+  friend class componentLibrary;
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-public:
   Capacitor(){}
   Capacitor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
-  Capacitor(const Capacitor&original);
-  Capacitor(Capacitor &&temp);
+public:
+  Capacitor(const Capacitor&original) : Component(original){}
+  Capacitor(Capacitor &&temp) : Component(std::move(temp)){}
   ~Capacitor(){}
   Capacitor &operator=(Capacitor &&temp);
   Capacitor &operator=(const Capacitor &other);
@@ -74,13 +77,14 @@ public:
 
 class Inductor:public Component
 {
+  friend class componentLibrary;
 private:
   void set_z_complex(const double value_input, const double omega_input) override;
-public:
   Inductor(){}
   Inductor(const std::string name_prmtr, const double value_prmtr) : Component(name_prmtr, value_prmtr){}
-  Inductor(const Inductor&original);
-  Inductor(Inductor &&temp);
+public:
+  Inductor(const Inductor&original) : Component(original){}
+  Inductor(Inductor &&temp) : Component(std::move(temp)){}
   ~Inductor(){}
   Inductor &operator=(Inductor &&temp);
   Inductor &operator=(const Inductor &other);

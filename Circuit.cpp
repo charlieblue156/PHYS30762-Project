@@ -69,18 +69,15 @@ void Circuit::validate_circuit_element(std::shared_ptr<xBlock> circuit_element_p
 }
 Circuit::Circuit(const Circuit&original) : xBlock{original}, omega{original.omega}
 {
-    std::cout<<"Copy constructor for "<<name<<" called."<<std::endl;
     allocate(original.name, original.circuit_elements);
 }
 Circuit::Circuit(Circuit &&temp): xBlock(std::move(temp)), omega(std::move(temp.omega))
 {
-    std::cout<<"Move constructor for "<<name<<" called."<<std::endl;
     circuit_elements.clear();
     allocate(name, temp.circuit_elements);
 }
 Circuit &Circuit::operator=(const Circuit &other)
 {
-    std::cout<<"Copy assignment operator for "<<name<<" called."<<std::endl;
     if(this!=&other)
     {
         xBlock::operator=(other);
@@ -91,7 +88,6 @@ Circuit &Circuit::operator=(const Circuit &other)
 }
 Circuit &Circuit::operator=(Circuit &&temp)
 {
-    std::cout<<"Move assignment operator for "<<name<<" called."<<std::endl;
     circuit_elements.clear();
     if(this!=&temp)
     {
@@ -103,7 +99,7 @@ Circuit &Circuit::operator=(Circuit &&temp)
 }
 void Circuit::activate_circuit()
 {
-    std::cout<<'\n'<<"Activating "<<this->get_name()<<"."<<std::endl;
+    std::cout<<"Activating "<<this->get_name()<<"."<<std::endl;
     for(const auto &circuit_element_ptr: this->circuit_elements) 
     {
         if(circuit_element_ptr)

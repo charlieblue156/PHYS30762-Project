@@ -20,13 +20,16 @@ int main()
     componentLibrary component_library{};
     component_library.set_name("component_library");
 
-    component_library.component_library_entry(std::make_shared<Resistor>("r1", -5.0));
-    component_library.component_library_entry(std::make_shared<Capacitor>("c1", 10.0));
-    component_library.component_library_entry(std::make_shared<Inductor>("i1", 12.6));
+    component_library.component_library_entry("Resistor", "r1", -5.0);
+    component_library.component_library_entry("Capacitor", "c1", 10.0);
+    component_library.component_library_entry("Inductor", "i1", 20.0);
+    component_library.get_component("i1")->set_value(-5.0);
+    component_library.print_component_library();
 
     //Tests the name and type value exclusivity of the component library
-    component_library.component_library_entry(std::make_shared<Resistor>("r1", 3.0));
-    component_library.component_library_entry(std::make_shared<Capacitor>("c2", 10.0));
+    component_library.component_library_entry("Resistor", "r1", 3.0);
+    component_library.component_library_entry("Capacitor", "c2", 10.0);
+    component_library.component_library_entry("resistor", "r1", -5.0);
 
 
     //yBlock creation
@@ -34,7 +37,7 @@ int main()
     y1.add_y_element("r1", std::move(component_library.get_component("r1")));
     y1.add_y_element("c1", std::move(component_library.get_component("c1")));
     y1.add_y_element("i1", std::move(component_library.get_component("i1")));
-    y1.add_y_element("r1", std::make_shared<Resistor>("r1", -1.0));
+
 
     //yBlock recursion
     yBlock y1_copy= y1;
@@ -47,7 +50,7 @@ int main()
     c1.add_circuit_element("y1", std::move(std::make_shared<yBlock>(y1)));
     c1.add_circuit_element("i1", std::move(component_library.get_component("i1")));
     c1.add_circuit_element("r1", std::move(component_library.get_component("r1")));
-    c1.add_circuit_element("r1", std::make_shared<Resistor>("r1", -1.0));
+
 
 
 
@@ -57,7 +60,6 @@ int main()
     y2.add_y_element("c1", std::move(std::make_shared<Circuit>(c1_copy)));
 
     c1.add_circuit_element("y2", std::move(std::make_shared<yBlock>(y2)));
-    c1.add_circuit_element("r1", std::make_shared<Resistor>("r1", -1.0));
 
     c1.activate_circuit(); 
     c1.generate_circuit();
@@ -65,5 +67,7 @@ int main()
 
     return 0;
 }
+
+//g++ "main.cpp" "Component.h" "Component.cpp" "componentLibrary.h" "componentLibrary.cpp" "xBlock.h" "xBlock.cpp" "yBlock.h" "yBlock.cpp" "Circuit.h" "Circuit.cpp" -o Project.exe
 
 
