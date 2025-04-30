@@ -23,7 +23,7 @@ int main()
     component_library.component_library_entry("Resistor", "r1", -5.0);
     component_library.component_library_entry("Capacitor", "c1", 10.0);
     component_library.component_library_entry("Inductor", "i1", 20.0);
-    component_library.get_component("i1")->set_value(75.0);
+    component_library.get_component("i1")->set_value(-5.0);
     component_library.print_component_library();
 
     //Tests the name and type value exclusivity of the component library

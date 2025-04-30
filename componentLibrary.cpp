@@ -122,7 +122,7 @@ void componentLibrary::component_library_entry(const std::string &type_prmtr, co
     }
     else
     {
-        std::cerr<<"Invalid type name, component entry into"<<name<<" failed for "<<name_prmtr<<". set the type name to either \"Resistor\", \"Capacitor\", or \"Inductor\" exactly.\n"<<std::endl;
+        std::cerr<<"Invalid type name, component entry into "<<name<<" failed for "<<name_prmtr<<". set the type name to either \"Resistor\", \"Capacitor\", or \"Inductor\" exactly.\n"<<std::endl;
     }
 
 }

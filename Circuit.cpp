@@ -150,31 +150,7 @@ void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> &&ci
 }
 void Circuit::remove_circuit_element(std::string removal_name)
 {
-    auto iterator=circuit_elements.begin();
-    while (iterator!=circuit_elements.end()) 
-    {
-        if (*iterator&&(*iterator)->get_name()==removal_name) 
-        {
-            iterator=circuit_elements.erase(iterator);
-            std::cout<<removal_name<<" removed from "<<this->get_name()<< "."<<std::endl;
-        } 
-        else 
-        {
-            ++iterator;
-        }
-    }
-    for(auto& element_ptr : circuit_elements) 
-    {
-        if(!element_ptr) continue;
-        if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
-        {
-            circuit_ptr->remove_circuit_element(removal_name);
-        }
-        else if(auto y_block_ptr=dynamic_cast<yBlock*>(element_ptr.get())) 
-        {
-            y_block_ptr->remove_y_element(removal_name);
-        }
-    }
+    this->remove_element_algorithm(removal_name, circuit_elements);
 }
 void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr)
 {

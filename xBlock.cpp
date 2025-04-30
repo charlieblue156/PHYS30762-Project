@@ -45,6 +45,32 @@ std::shared_ptr<xBlock> xBlock::find_element_algorithm(const std::string &name, 
     }
     return nullptr;
 }
+void xBlock::remove_element_algorithm(const std::string &removal_name, std::vector<std::shared_ptr<xBlock>> &vctr)
+{
+    auto iterator=std::remove_if(vctr.begin(), vctr.end(), [&removal_name, this](const std::shared_ptr<xBlock> &element_ptr)
+    {
+        if(element_ptr&&element_ptr->get_name()==removal_name)
+        {
+            std::cout<<removal_name<<" removed from "<<this->get_name()<<"."<<std::endl;
+            return true;
+        }
+        return false;
+    });
+    vctr.erase(iterator, vctr.end());
+
+    for(auto &element_ptr : vctr)
+    {
+        if(!element_ptr) continue;
+        if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
+        {
+            circuit_ptr->remove_element_algorithm(removal_name, circuit_ptr->circuit_elements);
+        } 
+        else if(auto y_block_ptr = dynamic_cast<yBlock*>(element_ptr.get())) 
+        {
+            y_block_ptr->remove_element_algorithm(removal_name, y_block_ptr->y_elements);
+        }
+    }
+}
 xBlock::xBlock(const xBlock &other) : z_complex(other.z_complex), name(other.name)
 {
     std::cout<<"Calling copy constructor for "<<this->get_name()<<"."<<std::endl;

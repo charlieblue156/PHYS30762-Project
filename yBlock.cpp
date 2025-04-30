@@ -161,36 +161,7 @@ void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element
 }
 void yBlock::remove_y_element(const std::string removal_name)
 {
-    auto iterator=y_elements.begin();
-    bool removed = false;
-    while(iterator!=y_elements.end()) 
-    {
-        if(*iterator&&(*iterator)->get_name()==removal_name) 
-        {
-            iterator=y_elements.erase(iterator);
-            std::cout<<removal_name<<" removed from "<< this->get_name()<<"."<<std::endl;
-            removed = true;
-        } else 
-        {
-            ++iterator;
-        }
-    }
-    for(auto& element_ptr : y_elements)
-    {
-        if(!element_ptr) continue;
-        if(auto circuit_ptr=dynamic_cast<Circuit*>(element_ptr.get())) 
-        {
-            circuit_ptr->remove_circuit_element(removal_name);
-        }
-        else if(auto y_block_ptr = dynamic_cast<yBlock*>(element_ptr.get())) 
-        {
-            y_block_ptr->remove_y_element(removal_name);
-        }
-    }
-    if(!removed)
-    {
-        std::cout<<removal_name<<" not found in "<<this->get_name()<<"."<< std::endl;
-    }
+    this->remove_element_algorithm(removal_name, y_elements);
 }
 void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr)
 {

@@ -24,6 +24,7 @@ class Component;
 
 class Circuit:public xBlock
 {
+  friend class xBlock;
 private:
   std::vector<std::shared_ptr<xBlock>> circuit_elements{};
   double omega;
