@@ -11,8 +11,8 @@ Circuit class source file.
 #include<complex>
 #include<algorithm>
 #include "Component.h"
-#include "xBlock.h"
-#include "yBlock.h"
+#include "XBlock.h"
+#include "YBlock.h"
 #include "Circuit.h"
 
 void Circuit::set_z_complex()
@@ -25,7 +25,8 @@ void Circuit::set_z_complex()
         }
     }
 }
-void Circuit::allocate(std::string name_prmtr, std::shared_ptr<xBlock> circuit_element_prmtr)
+//Attempts to add XBlock ptr to circuit elements
+void Circuit::allocate(std::string name_prmtr, std::shared_ptr<XBlock> circuit_element_prmtr)
 {
     try
     {
@@ -41,7 +42,8 @@ void Circuit::allocate(std::string name_prmtr, std::shared_ptr<xBlock> circuit_e
         std::cerr<<e.what()<<std::endl;
     }
 }
-void Circuit::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> circuit_elements_prmtr)
+//Attempts to add vector of XBlock ptrs to circuit element
+void Circuit::allocate(std::string name_prmtr, std::vector<std::shared_ptr<XBlock>> circuit_elements_prmtr)
 {
     try
     {
@@ -60,18 +62,19 @@ void Circuit::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBloc
         std::cerr<<e.what()<<std::endl;
     }
 }
-void Circuit::validate_circuit_element(std::shared_ptr<xBlock> circuit_element_ptr)
+//Validates against allocating null ptrs
+void Circuit::validate_circuit_element(std::shared_ptr<XBlock> circuit_element_ptr)
 {
     if(!circuit_element_ptr) 
     {
         throw std::invalid_argument("Null pointer passed to"+name+".");
     }
 }
-Circuit::Circuit(const Circuit&original) : xBlock{original}, omega{original.omega}
+Circuit::Circuit(const Circuit&original) : XBlock{original}, omega{original.omega}
 {
     allocate(original.name, original.circuit_elements);
 }
-Circuit::Circuit(Circuit &&temp): xBlock(std::move(temp)), omega(std::move(temp.omega))
+Circuit::Circuit(Circuit &&temp): XBlock(std::move(temp)), omega(std::move(temp.omega))
 {
     circuit_elements.clear();
     allocate(name, temp.circuit_elements);
@@ -80,7 +83,7 @@ Circuit &Circuit::operator=(const Circuit &other)
 {
     if(this!=&other)
     {
-        xBlock::operator=(other);
+        XBlock::operator=(other);
         omega=other.omega;
         allocate(other.name, other.circuit_elements);
     }
@@ -91,12 +94,13 @@ Circuit &Circuit::operator=(Circuit &&temp)
     circuit_elements.clear();
     if(this!=&temp)
     {
-        xBlock::operator=(std::move(temp));
+        XBlock::operator=(std::move(temp));
         omega=std::move(temp.omega);
         allocate(name, temp.circuit_elements);
     }
     return *this;
 }
+//Passes the angular frequency to circuit elements, to set their complex impedance. 
 void Circuit::activate_circuit()
 {
     std::cout<<"Activating "<<this->get_name()<<"."<<std::endl;
@@ -108,7 +112,7 @@ void Circuit::activate_circuit()
           {
             this->activate_x_block(*circuit_element_ptr, omega);
           }
-          catch(const componentFailure &e)
+          catch(const ComponentFailure &e)
           {
             std::cerr<<e.what()<<std::endl;
             this->remove_circuit_element(e.get_component_name());
@@ -121,7 +125,7 @@ void Circuit::activate_circuit()
 void Circuit::find_element(const std::string &name)
 {
     std::cout<<'\n'<<"Searching for "<<name<<" in "<<this->get_name()<<"."<<std::endl;
-    std::shared_ptr<xBlock> search_result{};
+    std::shared_ptr<XBlock> search_result{};
     search_result=find_element_algorithm(name, this->get_circuit_elements());
     if(search_result==nullptr) 
     {
@@ -144,7 +148,7 @@ void Circuit::print_circuit_elements()
         }
     }
 }
-void Circuit::add_circuit_element(std::string name, std::shared_ptr<xBlock> &&circuit_element_ptr)
+void Circuit::add_circuit_element(std::string name, std::shared_ptr<XBlock> &&circuit_element_ptr)
 {
     allocate(name, circuit_element_ptr);
 }
@@ -152,7 +156,7 @@ void Circuit::remove_circuit_element(std::string removal_name)
 {
     this->remove_element_algorithm(removal_name, circuit_elements);
 }
-void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&circuit_elements_prmtr)
+void Circuit::add_circuit_elements(std::string name, std::vector<std::shared_ptr<XBlock>> &&circuit_elements_prmtr)
 {
   allocate(name, circuit_elements_prmtr);
 }
@@ -162,6 +166,7 @@ void Circuit::clear_circuit_elements()
     std::cout<<this->get_name()<<" circuit elements cleared."<<std::endl;
     z_complex=0.0;
 }
+//Contains html symbol
 void Circuit::html_art(std::ofstream &html)
 {
     for (const auto circuit_element_ptr : this->circuit_elements)
@@ -173,6 +178,7 @@ void Circuit::html_art(std::ofstream &html)
         circuit_element_ptr->html_art(html);
     }
 }
+//Creates html document
 void Circuit::generate_circuit()
 {
     std::ofstream html("circuit.html");

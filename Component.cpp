@@ -4,8 +4,8 @@ Component source file.
 */
 
 #include"Component.h"
-#include"xBlock.h"
-#include"yBlock.h"
+#include"XBlock.h"
+#include"YBlock.h"
 #include"Circuit.h"
 #include<iostream>
 #include<fstream>
@@ -15,10 +15,9 @@ Component source file.
 #include<memory>
 #include<complex>
 
-
+//Sets complex impedance of component given angular frequency input
 void Component::activate_component(double omega)
 {
-    
     try
     {
         this->set_z_complex(value.value(), omega);
@@ -26,10 +25,10 @@ void Component::activate_component(double omega)
     catch(const std::bad_optional_access& e)
     {
         std::cerr<<"Z complex for "<<name<<" cannot be set due to an invalid value."<<std::endl;
-        throw componentFailure(name, "Removing invalid component: "+name+".");
+        throw ComponentFailure(name, "Removing invalid component: "+name+".");
     }
 }
-Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : xBlock(name_prmtr)
+Component::Component(const std::string name_prmtr, const std::optional<double> value_prmtr) : XBlock(name_prmtr)
 {
     std::cout<<"Parameterised constructor for "<<name_prmtr<<" called."<<std::endl;
     name=name_prmtr;
@@ -46,7 +45,7 @@ Component &Component::operator=(Component &&temp)
 {
     if(this!=&temp)
     {
-        xBlock::operator=(std::move(temp));
+        XBlock::operator=(std::move(temp));
         value=std::move(temp.value);
     }
     return *this;
@@ -55,7 +54,7 @@ Component &Component::operator=(const Component &other)
 {
     if(this!=&other)
     {
-        xBlock::operator=(other);
+        XBlock::operator=(other);
         value=(other.value);
     }
     return *this;
@@ -98,7 +97,7 @@ Resistor &Resistor::operator=(const Resistor &other)
 }
 void Resistor::print_xblock_data()
 {
-    xBlock::print_xblock_data();
+    XBlock::print_xblock_data();
     std::cout<<"Resistor: ";
     if(this->get_value().has_value())
     {
@@ -109,6 +108,7 @@ void Resistor::print_xblock_data()
         std::cout<<"no value."<<std::endl;
     }
 }
+//Contains html symbol
 void Resistor::html_art(std::ofstream &html)
 {
     html<<"<div class=\"component selectableComponent\"";
@@ -154,7 +154,7 @@ Capacitor &Capacitor::operator=(const Capacitor &other)
 }
 void Capacitor::print_xblock_data()
 {
-    xBlock::print_xblock_data();
+    XBlock::print_xblock_data();
     std::cout<<"Capacitor: ";
     if(this->get_value().has_value())
     {
@@ -165,6 +165,7 @@ void Capacitor::print_xblock_data()
         std::cout<<"no value."<<std::endl;
     }
 }
+//Contains html symbol
 void Capacitor::html_art(std::ofstream &html)
 {
     html<<"<div class=\"component selectableComponent\"";
@@ -210,7 +211,7 @@ Inductor &Inductor::operator=(const Inductor &other)
 }
 void Inductor::print_xblock_data()
 {
-    xBlock::print_xblock_data();
+    XBlock::print_xblock_data();
     std::cout<<"Inductor: ";
     if(this->get_value().has_value())
     {
@@ -221,6 +222,7 @@ void Inductor::print_xblock_data()
         std::cout<<"no value."<<std::endl;
     }
 }
+//Contains html symbol
 void Inductor::html_art(std::ofstream &html)
 {
     html<<"<div class=\"component selectableComponent\"";
