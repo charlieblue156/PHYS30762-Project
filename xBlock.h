@@ -17,27 +17,25 @@ and print data.
 
 class Circuit;
 class Component;
-class componentLibrary;
 
-class xBlock
+class XBlock
 {
-  friend class yBlock;
+  friend class YBlock;
   friend class Component;
-
 protected:
   std::complex<double> z_complex;
   std::string name{""};
-  xBlock(const std::string name_prmtr) : name(name_prmtr){}
-  xBlock(){}
-  std::shared_ptr<xBlock> find_element_algorithm(const std::string &name, const std::vector<std::shared_ptr<xBlock>> &vctr); //Algorithm to find ptr<xBlock> within a circuit
-  void remove_element_algorithm(const std::string &name, std::vector<std::shared_ptr<xBlock>> &vctr);
-  void activate_x_block(xBlock &x_block, double omega); //Sets the complex impedance of the xBlock object
+  XBlock(const std::string name_prmtr) : name(name_prmtr){}
+  XBlock(){}
+  std::shared_ptr<XBlock> find_element_algorithm(const std::string &name, const std::vector<std::shared_ptr<XBlock>> &vctr);
+  void remove_element_algorithm(const std::string &name, std::vector<std::shared_ptr<XBlock>> &vctr);
+  void activate_x_block(XBlock &x_block, double omega); 
 public:
-  virtual ~xBlock(){}
-  xBlock(const xBlock &other);
-  xBlock(xBlock &&temp);
-  xBlock &operator=(const xBlock &other);
-  xBlock &operator=(xBlock &&temp);
+  virtual ~XBlock(){}
+  XBlock(const XBlock &other);
+  XBlock(XBlock &&temp);
+  XBlock &operator=(const XBlock &other);
+  XBlock &operator=(XBlock &&temp);
   std::complex<double> get_z_complex() const {return z_complex;} 
   double get_z_magnitude() const {return std::abs(z_complex);}
   double get_z_phase() const {return std::arg(z_complex);}

@@ -8,13 +8,14 @@ componentLibrary source file.
 #include<unordered_map>
 #include<stdexcept>
 #include<sstream>
-#include"xBlock.h"
-#include "yBlock.h"
+#include"XBlock.h"
+#include "YBlock.h"
 #include "Circuit.h"
 #include "Component.h"
 #include "componentLibrary.h"
 
-void componentLibrary::duplication_validation(std::shared_ptr<Component> new_component)
+//Checks allocations for duplicates
+void ComponentLibrary::duplication_validation(std::shared_ptr<Component> new_component)
 {
     if(component_library.empty())
     {
@@ -57,7 +58,8 @@ void componentLibrary::duplication_validation(std::shared_ptr<Component> new_com
     }
     std::cout<<"Duplication check success.\n"<<std::endl;
 }
-void componentLibrary::allocate(std::shared_ptr<Component> new_component)
+//Adds component to component library
+void ComponentLibrary::allocate(std::shared_ptr<Component> new_component)
 {
     try
     {
@@ -78,7 +80,7 @@ void componentLibrary::allocate(std::shared_ptr<Component> new_component)
         std::cerr<<"Value for "<<new_component->get_name()<<" invalid.\n"<<std::endl;
     }
 }
-componentLibrary::componentLibrary(const componentLibrary&original) : component_library{original.component_library}
+ComponentLibrary::ComponentLibrary(const ComponentLibrary&original) : component_library{original.component_library}
 {
     for(const auto &[name, component_ptr] : original.component_library) 
     {
@@ -88,7 +90,7 @@ componentLibrary::componentLibrary(const componentLibrary&original) : component_
         }
     }
 }
-std::shared_ptr<Component> componentLibrary::get_component(std::string library_index)
+std::shared_ptr<Component> ComponentLibrary::get_component(std::string library_index)
 {
     std::cout<<'\n'<<"Searching for "<<library_index<<" in "<<name<<"."<<std::endl;
     auto iterator=component_library.find(library_index);
@@ -103,7 +105,8 @@ std::shared_ptr<Component> componentLibrary::get_component(std::string library_i
         return nullptr;
     }
 }
-void componentLibrary::component_library_entry(const std::string &type_prmtr, const std::string &name_prmtr, const double value_prmtr)
+//Interface abstraction for addding components
+void ComponentLibrary::component_library_entry(const std::string &type_prmtr, const std::string &name_prmtr, const double value_prmtr)
 {
     if(type_prmtr=="Resistor")
     {
@@ -126,7 +129,7 @@ void componentLibrary::component_library_entry(const std::string &type_prmtr, co
     }
 
 }
-void componentLibrary::print_component_library() const
+void ComponentLibrary::print_component_library() const
 {
   std::cout<<'\n'<<"Printing component library "<<name<<":"<<std::endl;
   for(const auto& [name, component] : component_library) 

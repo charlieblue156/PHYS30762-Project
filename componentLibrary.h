@@ -12,12 +12,12 @@ remove, and clear components from the library, as well as to print the component
 #include<iostream> 
 #include<string>   
 #include<unordered_map>
-#include"xBlock.h"
-#include"yBlock.h"
+#include"XBlock.h"
+#include"YBlock.h"
 #include"Circuit.h"
 #include"Component.h"
 
-class componentLibrary
+class ComponentLibrary
 {
 private:
   std::unordered_map<std::string, std::shared_ptr<Component>> component_library{};
@@ -25,13 +25,13 @@ private:
   void duplication_validation(std::shared_ptr<Component> new_component);
   void allocate(std::shared_ptr<Component> new_component);
 public:
-  componentLibrary(){}
-  componentLibrary(const std::string name_prmtr, const std::unordered_map<std::string, std::shared_ptr<Component>> &&component_library_prmtr) : name(name_prmtr), component_library(std::move(component_library_prmtr)){}
-  componentLibrary(const componentLibrary&original);
-  componentLibrary(componentLibrary &&temp) : component_library(std::move(temp.component_library)){}
-  ~componentLibrary(){}
-  componentLibrary &operator=(const componentLibrary &other);
-  componentLibrary &operator=(componentLibrary &&temp);
+  ComponentLibrary(){}
+  ComponentLibrary(const std::string name_prmtr, const std::unordered_map<std::string, std::shared_ptr<Component>> &&component_library_prmtr) : name(name_prmtr), component_library(std::move(component_library_prmtr)){}
+  ComponentLibrary(const ComponentLibrary&original);
+  ComponentLibrary(ComponentLibrary &&temp) : component_library(std::move(temp.component_library)){}
+  ~ComponentLibrary(){}
+  ComponentLibrary &operator=(const ComponentLibrary &other);
+  ComponentLibrary &operator=(ComponentLibrary &&temp);
   std::shared_ptr<Component> get_component(std::string library_index);
   void component_library_entry(const std::string &type_prmtr, const std::string &name_prmtr, const double value_prmtr);
   std::string get_name() const {return name;}

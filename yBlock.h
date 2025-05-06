@@ -17,34 +17,34 @@ The class contains functions to add, remove, and clear yBlock elements, as well 
 #include<fstream>
 #include<optional>
 #include "Component.h"
-#include "xBlock.h"
+#include "XBlock.h"
 #include "Circuit.h"
 
 class Circuit;
 
-class yBlock : public xBlock
+class YBlock : public XBlock
 {
-  friend class xBlock;
+  friend class XBlock;
 private:
-  std::vector<std::shared_ptr<xBlock>> y_elements;
+  std::vector<std::shared_ptr<XBlock>> y_elements;
   void set_z_complex();
-  void allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr);
-  void allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr);
-  void validate_y_element(std::shared_ptr<xBlock> y_element_ptr);
+  void allocate(std::string name_prmtr, std::shared_ptr<XBlock> y_element_prmtr);
+  void allocate(std::string name_prmtr, std::vector<std::shared_ptr<XBlock>> y_elements_prmtr);
+  void validate_y_element(std::shared_ptr<XBlock> y_element_ptr);
   void activate_y_block(double omega);
 public:
-  yBlock(){}
-  yBlock(const std::string name_prmtr) : xBlock(name_prmtr){}
-  yBlock(const yBlock &original);
-  yBlock(yBlock &&temp);
-  ~yBlock(){}
-  yBlock &operator=(const yBlock &other);
-  yBlock &operator=(yBlock &&temp);
-  std::vector<std::shared_ptr<xBlock>> get_y_elements() const {return y_elements;}
+  YBlock(){}
+  YBlock(const std::string name_prmtr) : XBlock(name_prmtr){}
+  YBlock(const YBlock &original);
+  YBlock(YBlock &&temp);
+  ~YBlock(){}
+  YBlock &operator=(const YBlock &other);
+  YBlock &operator=(YBlock &&temp);
+  std::vector<std::shared_ptr<XBlock>> get_y_elements() const {return y_elements;}
   void print_yelements();
-  void add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element_ptr);
+  void add_y_element(std::string name, std::shared_ptr<XBlock> &&y_element_ptr);
   void remove_y_element(const std::string removal_name);
-  void add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr);
+  void add_y_elements(std::string name, std::vector<std::shared_ptr<XBlock>> &&y_elements_prmtr);
   void clear_y_elements();
   void html_art(std::ofstream &html) override;
 };

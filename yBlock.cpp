@@ -10,12 +10,13 @@ yBlock class source file.
 #include<complex>
 #include<fstream>
 #include<algorithm>
-#include "xBlock.h"
+#include "XBlock.h"
 #include "Component.h"
-#include "yBlock.h"
+#include "YBlock.h"
 #include "Circuit.h"
 
-void yBlock::activate_y_block(double omega)
+//calculates and sets complex impedance of YBlock
+void YBlock::activate_y_block(double omega)
 {
     for(const auto &y_element_ptr : this->y_elements) 
     {
@@ -33,7 +34,8 @@ void yBlock::activate_y_block(double omega)
         std::cerr<<e.what()<<'\n';
     }
 }
-void yBlock::set_z_complex()
+//sets complex impedance of YBlock
+void YBlock::set_z_complex()
 {
 
     if(y_elements.empty())
@@ -64,7 +66,8 @@ void yBlock::set_z_complex()
         z_complex=(1.0/z_reciprocal_sum);
     }
 }
-void yBlock::allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_prmtr)
+//Attempts to add single XBlock pointer to y_elements
+void YBlock::allocate(std::string name_prmtr, std::shared_ptr<XBlock> y_element_prmtr)
 {
     try
     {
@@ -80,7 +83,8 @@ void yBlock::allocate(std::string name_prmtr, std::shared_ptr<xBlock> y_element_
         std::cerr<<e.what()<<std::endl;
     }
 }
-void yBlock::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock>> y_elements_prmtr)
+//Attempts to add vector of XBlock pointer to y_elements
+void YBlock::allocate(std::string name_prmtr, std::vector<std::shared_ptr<XBlock>> y_elements_prmtr)
 {
     try
     {
@@ -99,45 +103,46 @@ void yBlock::allocate(std::string name_prmtr, std::vector<std::shared_ptr<xBlock
         std::cerr<<e.what()<<std::endl;
     }
 }
-void yBlock::validate_y_element(std::shared_ptr<xBlock> y_element_ptr)
+//Validates against null ptr arguments
+void YBlock::validate_y_element(std::shared_ptr<XBlock> y_element_ptr)
 {
     if(!y_element_ptr) 
     {
         throw std::invalid_argument("Null pointer passed to "+name+".");
     }
 }
-yBlock::yBlock(const yBlock&original) : xBlock(original)
+YBlock::YBlock(const YBlock&original) : XBlock(original)
 {
     y_elements.clear();
     allocate(original.name, original.y_elements);
 }
-yBlock::yBlock(yBlock &&temp) : xBlock(std::move(temp))
+YBlock::YBlock(YBlock &&temp) : XBlock(std::move(temp))
 {
     allocate(temp.name, temp.y_elements);
 }
-yBlock &yBlock::operator=(const yBlock &other)
+YBlock &YBlock::operator=(const YBlock &other)
 {
     if(this!=&other)
     {
-        xBlock::operator=(other);
+        XBlock::operator=(other);
         y_elements.clear();
         allocate(other.name, other.y_elements);
     }
     return *this;
    
 }
-yBlock &yBlock::operator=(yBlock &&temp)
+YBlock &YBlock::operator=(YBlock &&temp)
 {
     if(this!=&temp)
     {
-        xBlock::operator=(std::move(temp));
+        XBlock::operator=(std::move(temp));
         allocate(name, temp.y_elements);
     }
     return *this;
 }
-void yBlock::print_yelements()
+void YBlock::print_yelements()
 {
-    std::cout<<'\n'<<"Printing yBlock elements for "<<this->get_name()<<"."<<std::endl;
+    std::cout<<'\n'<<"Printing YBlock elements for "<<this->name<<"."<<std::endl;
     for(const auto &y_element_ptr : y_elements) 
     {
         if(y_element_ptr)
@@ -146,24 +151,20 @@ void yBlock::print_yelements()
         }
     }
 }
-void yBlock::add_y_element(std::string name, std::shared_ptr<xBlock> &&y_element_ptr)
+//Abstraction of the allocate function
+void YBlock::add_y_element(std::string name, std::shared_ptr<XBlock> &&y_element_ptr)
 {
-    if(!y_element_ptr) 
-    {
-        std::cerr<<"Null pointer passed to add_y_element."<< std::endl;
-        return;
-    }
-    else
-    {
-        allocate(name, y_element_ptr);
-    }
+
+    allocate(name, y_element_ptr);
     
 }
-void yBlock::remove_y_element(const std::string removal_name)
+//Abstraction of the remove_y_element algorithm
+void YBlock::remove_y_element(const std::string removal_name)
 {
     this->remove_element_algorithm(removal_name, y_elements);
 }
-void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock>> &&y_elements_prmtr)
+//Abstraction of allocate for a vector of ptrs
+void YBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<XBlock>> &&y_elements_prmtr)
 {
     for(const auto &y_element_ptr: y_elements_prmtr) 
     {
@@ -178,13 +179,15 @@ void yBlock::add_y_elements(std::string name, std::vector<std::shared_ptr<xBlock
         }
     }
 }
-void yBlock::clear_y_elements()
+//Clears y_elements
+void YBlock::clear_y_elements()
 {
     y_elements.clear();
     std::cout<<"yBlock elements cleared."<<std::endl;
     z_complex=0.;
 }
-void yBlock::html_art(std::ofstream &html)
+//Contains the html symbol
+void YBlock::html_art(std::ofstream &html)
 {
     if (y_elements.size() > 1)
     {
